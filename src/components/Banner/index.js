@@ -12,7 +12,7 @@ export default function Banner() {
         <div className={`${styles.overlay} ${styles.gradientBottom}`}></div>
         <div className={`${styles.overlay} ${styles.gradientBottom}`}></div>
         <div className={`${styles.overlay} ${styles.gradientBottom}`}></div>
-        <img className={styles.bannerImg} src="../../media/banner.jpg" alt="banner" />
+        <img className={styles.bannerImg} src="media/banner.jpg" alt="banner" />
       </div>
     </div>
   )
