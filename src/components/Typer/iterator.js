@@ -2,6 +2,11 @@
 import { typings } from '../config'
 import { length, substring } from 'stringz'
 
+/* This module uses stringz to iterate over the words
+   in a way that properly deals with unicode so the
+   emojis will be displayed correctly
+   https://cafedev.org/article/2016/08/javascript-unicode/ */
+
 function* typeWordIterator(string) {
   const makeForwardArray = _string => {
     // make the typer wait a little bit more at the beginning

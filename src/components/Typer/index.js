@@ -5,11 +5,6 @@ import styles from './styles.css'
 
 export default class Typer extends Component {
 
-  constructor(props) {
-    super(props)
-    this.state = { text: '' }
-  }
-
   componentDidMount() {
     const randomDelay = () => Math.floor(Math.random() * 450) + 100
     const typingIterator = iterator()
@@ -27,7 +22,7 @@ export default class Typer extends Component {
   render() {
     return (
       <div className={styles.root}>
-        <span className={styles.text}>for{this.state.text}</span>
+        <span className={styles.text}>for{this.state ? this.state.text : ''}</span>
         <span className={styles.cursor} />
       </div>
     )
