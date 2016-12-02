@@ -1,6 +1,4 @@
 
-// COPY VENDORS
-
 const fs = require('fs-extra')
 
 const copyDir = ({ from, to }) => {
@@ -11,17 +9,26 @@ const copyDir = ({ from, to }) => {
   })
 }
 
-copyDir({ 
-  from: 'node_modules/font-awesome', 
-  to: 'src/vendors/font-awesome' 
+// 1. COPY FONT_AWESOME
+
+copyDir({
+  from: 'node_modules/font-awesome',
+  to: 'src/vendors/font-awesome'
 })
 
-copyDir({ 
-  from: 'node_modules/font-awesome', 
-  to: 'docs/vendors/font-awesome' 
+copyDir({
+  from: 'node_modules/font-awesome',
+  to: 'docs/vendors/font-awesome'
 })
 
-// OPTIMIZE IMAGES
+// 2. COPY FAVICONS
+
+copyDir({ 
+  from: 'src/media/favicons', 
+  to: 'docs/media/favicons'
+})
+
+// 3. OPTIMIZE IMAGES
 
 const imagemin = require('imagemin')
 const imageminMozjpeg = require('imagemin-mozjpeg')
