@@ -3,6 +3,7 @@
 
 .content {
   justify-content: center;
+  z-index: 300;
 }
 
 @media (max-width: 767px) {
