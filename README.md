@@ -43,8 +43,6 @@
 
 ## Todos
 
-- Fix cross-browser issues (Firefox Banner position, Edge Banner blend)
-- Check mobile look-and-feel
 - Add `Made with ...` footer
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
@@ -52,6 +50,11 @@
 - Implement API for retrieving the next Meetup and Talks dynamically
 - Rewrite in Angular, lol
 - Adopt a wombat, drink a coffee and enjoy life
+
+## Issues
+
+- **Various blending issues:** Edge, Opera, Safari, older version of Firefox and Chrome, and multiple mobile browsers don't yet support [background-blend-mode](https://developer.mozilla.org/de/docs/Web/CSS/background-blend-mode) so the banner image either won't be blended or, sometimes, will even be blended through all z-indexes [`WONTFIX`]
+- **Banner image not centered**: In Opera, Safari, Firefox, older versions of Chrome, and multiple mobile browsers, the banner image is not centered, but translated 50% to the right [`BUG`]
 
 ## License
 
