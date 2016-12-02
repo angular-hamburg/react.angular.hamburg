@@ -43,9 +43,9 @@
 
 ## Todos
 
-- Fix Firefox Banner position (thanks, Mozilla)
-- Fix Edge Banner gradient (thanks, Microsoft)
-- Check obile look-and-feel
+- Fix cross-browser issues (Firefox Banner position, Edge Banner blend)
+- Check mobile look-and-feel
+- Add `Made with ...` footer
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German 
