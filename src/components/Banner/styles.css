@@ -12,8 +12,6 @@
 .innerContainer {
   position: absolute;
   bottom: 0;
-  display: flex;
-  justify-content: center;
   overflow: hidden;
   height: 600px;
   width: 100%;
@@ -40,8 +38,10 @@
 
 .bannerImg {
   position: absolute; 
+  margin-left: -534px;
+  left: 50%;
   bottom: 100px;
-  max-width: 1067px;
+  width: 1067px;
   max-height: 500px;
   filter: 
     grayscale(0.1)
@@ -58,23 +58,34 @@
     max-width: 3000px;
     max-height: 1405px;
     width: 100%;
+    left: 0;
+    margin-left: auto;
   }
 }
 
 @media(min-width: 1200px) {
   .bannerImg {
     margin-bottom: -8px;
+    width: 100%;
+    left: 0;
+    margin-left: auto;
   }
 }
 
 @media(min-width: 1300px) {
   .bannerImg {
     margin-bottom: -16px;
+    width: 100%;
+    left: 0;
+    margin-left: auto;
   }
 }
 
 @media(min-width: 1400px) {
   .bannerImg {
     margin-bottom: -24px;
+    width: 100%;
+    left: 0;
+    margin-left: auto;
   }
 }
