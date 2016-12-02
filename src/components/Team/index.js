@@ -15,7 +15,7 @@ export default function Team() {
         <div className={styles.name}>{name}</div>
         <div>{job}</div>
         <div>at {company}</div>
-        <Link target="_blank" href={`http://twitter.com/${twitter}`} title={`${twitter} on Twitter`}>
+        <Link className={styles.link} target="_blank" href={`http://twitter.com/${twitter}`} title={`${twitter} on Twitter`}>
           {`@${twitter}`}
         </Link>
       </li>

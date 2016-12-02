@@ -6,7 +6,7 @@ import styles from './styles.css'
 export default class Typer extends Component {
 
   componentDidMount() {
-    const randomDelay = () => Math.floor(Math.random() * 450) + 100
+    const randomDelay = () => Math.floor(Math.random() * 350) + 100
     const typingIterator = iterator()
 
     const type = () => {
