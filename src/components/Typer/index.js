@@ -11,14 +11,16 @@ export default class Typer extends Component {
   }
 
   componentDidMount() {
-    const randomTime = Math.floor(Math.random() * 400) + 250
-    const iter = iterator()
+    const randomDelay = () => Math.floor(Math.random() * 450) + 100
+    const typingIterator = iterator()
+
     const type = () => {
       setTimeout(() => {
-        this.setState({ text: iter.next().value })
+        this.setState({ text: typingIterator.next().value })
         type()
-      }, randomTime)
+      }, randomDelay())
     }
+
     type()
   }
 
