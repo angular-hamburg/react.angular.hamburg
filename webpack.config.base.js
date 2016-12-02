@@ -41,6 +41,14 @@ module.exports = {
       {
         test: /\.json$/,
         loader: 'json'
+      },
+      {
+        test: /\.css$/,
+        loaders: [
+          'style-loader',
+          'css-loader?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]',
+          'postcss-loader'
+        ]
       }
     ]
   },
