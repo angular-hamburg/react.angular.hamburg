@@ -44,6 +44,7 @@
 ## Todos
 
 - Add `Made with ...` footer
+- Optimize images
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German 
