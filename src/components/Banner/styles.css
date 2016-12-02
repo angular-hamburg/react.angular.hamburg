@@ -1,0 +1,80 @@
+
+@import '../variables.css';
+
+.outerContainer {
+  position: absolute;
+  overflow: hidden;
+  top: 0;
+  width: 100%;
+  height: 600px;
+}
+
+.innerContainer {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  height: 600px;
+  width: 100%;
+}
+
+.overlay {
+  position: absolute;
+  height: 600px;
+  width: 100%;
+  bottom: 0;
+  z-index: 100;
+}
+
+.gradientBottom {
+  background: linear-gradient(to top,
+    var(--grey) 50px, transparent 250px);
+}
+
+.blend {
+  z-index: 200;
+  background-color: rgba(49, 46, 54, 0.5);
+  background-blend-mode: multiply;
+}
+
+.bannerImg {
+  position: absolute; 
+  bottom: 100px;
+  max-width: 1067px;
+  max-height: 500px;
+  filter: 
+    grayscale(0.1)
+    saturate(0.4) 
+    contrast(0.9) 
+    brightness(1);
+}
+
+/* max 1405 x 3000
+   min 500 x 1067 */
+
+@media(min-width: 1067px) {
+  .bannerImg {
+    max-width: 3000px;
+    max-height: 1405px;
+    width: 100%;
+  }
+}
+
+@media(min-width: 1200px) {
+  .bannerImg {
+    margin-bottom: -8px;
+  }
+}
+
+@media(min-width: 1300px) {
+  .bannerImg {
+    margin-bottom: -16px;
+  }
+}
+
+@media(min-width: 1400px) {
+  .bannerImg {
+    margin-bottom: -24px;
+  }
+}

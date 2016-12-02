@@ -4,10 +4,8 @@
 .root {
   display: flex;
   flex-direction: column;
-  height: 495px;
+  height: 500px;
   padding: 0 20px;
-  background: url('../../media/background.jpg') center center;
-  background-size: cover;
   color: var(--white);
 }
 
@@ -24,7 +22,7 @@
   }
 }
 
-@media (max-width: 333px) {
+@media (max-width: 375px) {
   .root {
     height: 600px;
   }
@@ -37,6 +35,7 @@
   align-items: flex-end;
   text-align: center;
   transition: all 0.25s ease-in;
+  z-index: 300;
 }
 
 .title {
@@ -45,12 +44,14 @@
   line-height: 42px;
   text-align: right;
   margin-right: 65px;
+  text-shadow: 1px 1px 3px black;
 }
 
 .date {
   margin-top: 65px;
   font-size: 24px;
   font-weight: 300;
+  text-shadow: 1px 1px 3px black;
 }
 
 .highlight {

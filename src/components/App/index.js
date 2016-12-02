@@ -1,5 +1,6 @@
 
 import React from 'react'
+import Banner from '../Banner'
 import Header from '../Header'
 import Container from '../Container'
 import Talks from '../Talks'
@@ -11,12 +12,15 @@ import './styles.css'
 
 export default function App() {
   return (
-    <Container>
-      <Header />
-      <Talks />
-      <Section title="What is this all about?" text={aboutUs} />
-      <Team />
-      <Community />
-    </Container>
+    <div>
+      <Banner />
+      <Container>
+        <Header />
+        <Talks />
+        <Section title="What is this all about?" text={aboutUs} />
+        <Team />
+        <Community />
+      </Container>
+    </div>
   )
 }

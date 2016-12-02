@@ -3,6 +3,8 @@
 
 **The [angular.hamburg](https://marktiedemann.github.io/angular.hamburg/) website for Hamburg's [Angular](https://angular.io/) [Meetup](https://www.meetup.com/Hamburg-AngularJS-Meetup/), jokingly made with [React](https://github.com/facebook/react).**
 
+[![](https://raw.githubusercontent.com/MarkTiedemann/angular.hamburg/master/preview.png)](https://marktiedemann.github.io/angular.hamburg/)
+
 **Heavily inspired by and partially forked from the beautiful website of [HannoverJS](https://github.com/HannoverJS/hannoverjs.de).**
 
 ## Development
@@ -41,7 +43,9 @@
 
 ## Todos
 
-- Check cross-browser and mobile look-and-feel / responsiveness
+- Fix Firefox Banner position (thanks, Mozilla)
+- Fix Edge Banner gradient (thanks, Microsoft)
+- Check obile look-and-feel
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German 
