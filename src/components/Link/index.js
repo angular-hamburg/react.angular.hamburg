@@ -1,18 +1,14 @@
 
-import React, { PropTypes } from 'react'
+import React from 'react'
+import x from 'throw-if-missing'
 import styles from './styles.css'
 
-export default function Link({ href, title, className, children }) {
+export default function Link({
+  href = x`href`, title = x`title`, className, children = x`children`
+}) {
   return (
     <a className={`${styles.link} ${className}`} href={href} title={title}>
         {children}
     </a>
   )
-}
-
-Link.propTypes = {
-  href: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  children: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,
-  className: PropTypes.string
 }

@@ -12,9 +12,7 @@ export default function Header() {
       <Logo />
       <div className={styles.content}>
         <div className={styles.info}>
-          <h1 className={styles.title}>
-            Hamburg's<br />Angular Meetup
-          </h1>
+          <h1 className={styles.title}>Hamburg's<br />Angular Meetup</h1>
           <Typer />
           <div className={styles.date}>
             Next Meetup on <span className={styles.highlight}>{nextMeetup.date}</span>

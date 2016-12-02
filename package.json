@@ -1,7 +1,7 @@
 {
   "name": "angular.hamburg",
   "version": "0.1.0",
-  "description": "The angular.hamburg website",
+  "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
     "clean": "rimraf docs && rimraf src/vendors",
@@ -10,7 +10,6 @@
     "test": "npm run lint",
     "prestart": "npm run test && npm run build:static",
     "start": "webpack-dev-server --config webpack.config.dev.js -d --history-api-fallback --hot --inline --progress --colors",
-    "poststart": "npm run chrome",
     "chrome": "chrome http://localhost:3000",
     "prebuild": "npm run test && npm run clean && npm run build:static",
     "build": "cross-env NODE_ENV=production webpack --config webpack.config.prod.js --progress --colors",
@@ -47,6 +46,7 @@
     "rimraf": "^2.5.2",
     "stringz": "^0.1.1",
     "style-loader": "^0.13.1",
+    "throw-if-missing": "^1.1.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",

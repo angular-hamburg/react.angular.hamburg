@@ -1,8 +1,9 @@
 
-import React, { PropTypes } from 'react'
+import React from 'react'
+import x from 'throw-if-missing'
 import styles from './styles.css'
 
-export default function Section({ title, text, children, contentClassName }) {
+export default function Section({ title = x`title`, text, children, contentClassName }) {
   const renderText = () => (
     <p className={styles.text}>
       {text}
@@ -24,11 +25,4 @@ export default function Section({ title, text, children, contentClassName }) {
       {children && renderContent()}
     </div>
   )
-}
-
-Section.propTypes = {
-  title: PropTypes.string,
-  text: PropTypes.string,
-  children: PropTypes.node,
-  contentClassName: PropTypes.string
 }

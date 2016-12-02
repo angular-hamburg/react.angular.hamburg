@@ -1,13 +1,8 @@
 
-import React, { PropTypes } from 'react'
+import React from 'react'
+import x from 'throw-if-missing'
 import styles from './styles.css'
 
-export default function Avatar({ src, alt, className }) {
+export default function Avatar({ src = x`src`, alt = x`alt`, className }) {
   return <img className={`${styles.avatar} ${className}`} src={src} alt={alt} />
-}
-
-Avatar.propTypes = {
-  src: PropTypes.string.isRequired,
-  alt: PropTypes.string.isRequired,
-  className: PropTypes.string
 }

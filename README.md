@@ -44,6 +44,7 @@
 - Check cross-browser and mobile look-and-feel / responsiveness
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
+- Start I18N, specifically for supporting German 
 - Implement API for retrieving the next Meetup and Talks dynamically
 - Rewrite in Angular, lol
 - Adopt a wombat, drink a coffee and enjoy life

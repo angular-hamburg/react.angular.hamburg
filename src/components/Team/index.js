@@ -12,15 +12,9 @@ export default function Team() {
     return (
       <li className={styles.member} key={i}>
         <Avatar src={avatar} alt={name} />
-        <div className={styles.name}>
-          {name}
-        </div>
-        <div>
-          {job}
-        </div>
-        <div>
-          at {company}
-        </div>
+        <div className={styles.name}>{name}</div>
+        <div>{job}</div>
+        <div>at {company}</div>
         <Link target="_blank" href={`http://twitter.com/${twitter}`} title={`${twitter} on Twitter`}>
           {`@${twitter}`}
         </Link>
@@ -29,8 +23,6 @@ export default function Team() {
   })
 
   return (
-    <Section title="The Team">
-      {members()}
-    </Section>
+    <Section title="The Team">{members()}</Section>
   )
 }
