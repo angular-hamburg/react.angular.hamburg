@@ -8,7 +8,7 @@ import Section from '../Section'
 import Team from '../Team'
 import Community from '../Community'
 import { aboutUs } from '../config'
-import './styles.css'
+import styles from './styles.css'
 
 export default function App() {
   return (
@@ -20,6 +20,7 @@ export default function App() {
         <Section title="What is this all about?" text={aboutUs} />
         <Team />
         <Community />
+        <span className={styles.footer}>Made with ⚓ in Hamburg</span>
       </Container>
     </div>
   )

@@ -43,7 +43,6 @@
 
 ## Todos
 
-- Add `Made with ...` footer
 - Improve webpack config: Optimize images; Switch back to React production build
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
