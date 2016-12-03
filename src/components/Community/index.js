@@ -18,7 +18,7 @@ export default function Community() {
   })
 
   return (
-    <Section contentClassName={styles.platforms} title="Join the Community">
+    <Section contentClassName={styles.container} title="Join the Community">
       {renderPlatforms()}
     </Section>
   )

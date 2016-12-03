@@ -1,10 +1,13 @@
 
 @import '../variables.css';
 
+.team {
+  margin-top: 15px;
+}
+
 .member {
   flex: 1;
   justify-content: center;
-  margin-top: 8px;
   font-size: 14px;
   font-weight: 300;
   text-align: center;

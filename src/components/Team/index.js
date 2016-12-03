@@ -22,6 +22,6 @@ export default function Team() {
   })
 
   return (
-    <Section title="The Team">{members()}</Section>
+    <Section title="The Team" contentClassName={styles.team}>{members()}</Section>
   )
 }
