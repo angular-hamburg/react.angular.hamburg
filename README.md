@@ -41,12 +41,18 @@
     npm run chrome        # opens localhost:3000 in Chrome
     ```
 
-## Todos
+## Todos / Ideas
 
+- Check and prune devDependencies
+- Consider using a task runner for the (static) build
+- Add an offline indicator
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
-- Start I18N, specifically for supporting German 
+- Start I18N, specifically for supporting German
+- Consider implementing a light theme
 - Implement API for retrieving the next Meetup and Talks dynamically
+- Improve `Next Meetup` section with host, location, time of day, spots available, and possibly a countdown clock
+- Consider rewriting CSS in LESS or SASS
 - Rewrite in Angular, lol
 - Adopt a wombat, drink a coffee and enjoy life
 
