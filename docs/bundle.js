@@ -31087,22 +31087,6 @@
 	      children = _ref.children,
 	      contentClassName = _ref.contentClassName;
 
-	  var renderText = function renderText() {
-	    return _react2.default.createElement(
-	      'p',
-	      { className: _styles2.default.text },
-	      text
-	    );
-	  };
-
-	  var renderContent = function renderContent() {
-	    return _react2.default.createElement(
-	      'ul',
-	      { className: _styles2.default.content + ' ' + contentClassName },
-	      children
-	    );
-	  };
-
 	  return _react2.default.createElement(
 	    'div',
 	    { className: _styles2.default.root },
@@ -31115,8 +31099,16 @@
 	        title
 	      )
 	    ),
-	    text && renderText(),
-	    children && renderContent()
+	    text && _react2.default.createElement(
+	      'p',
+	      { className: _styles2.default.text },
+	      text
+	    ),
+	    children && _react2.default.createElement(
+	      'ul',
+	      { className: _styles2.default.content + ' ' + contentClassName },
+	      children
+	    )
 	  );
 	}
 
@@ -31290,7 +31282,7 @@
 
 	  return _react2.default.createElement(
 	    _Section2.default,
-	    { title: 'The Team' },
+	    { title: 'The Team', contentClassName: _styles2.default.team },
 	    members()
 	  );
 	}
@@ -31426,10 +31418,11 @@
 
 
 	// module
-	exports.push([module.id, "._2zipS{-webkit-box-flex:1;-ms-flex:1;flex:1;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;margin-top:8px;font-size:14px;font-weight:300;text-align:center;line-height:21px}@media (max-width:765px){._2zipS{margin-bottom:20px;-webkit-box-flex:50%;-ms-flex:50%;flex:50%}}._2Ma4G{width:100px;height:100px;border-radius:50%}._1eSix{font-weight:400}.VaFaS{color:#f8f8f8;border-bottom:1px solid #8b8a8e;text-decoration:none}", ""]);
+	exports.push([module.id, "._38Zdc{margin-top:15px}._2zipS{-webkit-box-flex:1;-ms-flex:1;flex:1;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;font-size:14px;font-weight:300;text-align:center;line-height:21px}@media (max-width:765px){._2zipS{margin-bottom:20px;-webkit-box-flex:50%;-ms-flex:50%;flex:50%}}._2Ma4G{width:100px;height:100px;border-radius:50%}._1eSix{font-weight:400}.VaFaS{color:#f8f8f8;border-bottom:1px solid #8b8a8e;text-decoration:none}", ""]);
 
 	// exports
 	exports.locals = {
+		"team": "_38Zdc",
 		"member": "_2zipS",
 		"avatar": "_2Ma4G",
 		"name": "_1eSix",
@@ -31490,7 +31483,7 @@
 
 	  return _react2.default.createElement(
 	    _Section2.default,
-	    { contentClassName: _styles2.default.platforms, title: 'Join the Community' },
+	    { contentClassName: _styles2.default.container, title: 'Join the Community' },
 	    renderPlatforms()
 	  );
 	}
@@ -31532,11 +31525,11 @@
 
 
 	// module
-	exports.push([module.id, "._2_JTq{max-width:270px;margin-left:auto;margin-right:auto}._8WBy_{-webkit-box-flex:1;-ms-flex:1;flex:1;text-align:center;margin-bottom:20px}.pgifW{font-size:28px;line-height:55px}", ""]);
+	exports.push([module.id, "._2aoXe{max-width:270px;margin-left:auto;margin-right:auto}._8WBy_{-webkit-box-flex:1;-ms-flex:1;flex:1;text-align:center;margin-bottom:20px}.pgifW{font-size:28px;line-height:55px}", ""]);
 
 	// exports
 	exports.locals = {
-		"platforms": "_2_JTq",
+		"container": "_2aoXe",
 		"platform": "_8WBy_",
 		"link": "pgifW"
 	};
