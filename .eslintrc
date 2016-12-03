@@ -11,5 +11,9 @@
         "semi": [2, "never"],
         "react/prop-types": "off",
         "react/jsx-filename-extension": "off"
+    },
+    "globals": {
+        "window": false,
+        "document": false
     }
 }

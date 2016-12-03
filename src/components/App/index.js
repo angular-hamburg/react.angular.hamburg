@@ -1,5 +1,6 @@
 
 import React from 'react'
+import Indicator from '../Indicator'
 import Banner from '../Banner'
 import Header from '../Header'
 import Container from '../Container'
@@ -13,6 +14,7 @@ import styles from './styles.css'
 export default function App() {
   return (
     <div>
+      <Indicator />
       <Banner />
       <Container>
         <Header />

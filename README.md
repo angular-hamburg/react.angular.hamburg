@@ -44,7 +44,6 @@
 ## Todos / Ideas
 
 - Consider using a task runner for the (static) build
-- Add an offline indicator
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German
