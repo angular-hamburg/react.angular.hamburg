@@ -9,41 +9,8 @@
 
 ## Development
 
-- **Install dependencies**
-    ```
-    npm install
-    ```
+### Todos / Ideas
 
-- **Start development server on `localhost:3000`**
-    ```
-    npm start
-    ```
-
-- **Lint `.js` files (and fix errors / warnings automatically)**
-    ```
-    npm run lint / npm run lint:fix
-    ```
-
-- **Run tests**
-    ```
-    npm test
-    ```
-
-- **Generate production build in the `/docs` folder**
-    ```
-    npm run build
-    ```
-
-- **Miscellaneous commands**
-    ```
-    npm run clean         # deletes the /docs folder
-    npm run build:static  # builds the static parts of the site
-    npm run chrome        # opens localhost:3000 in Chrome
-    ```
-
-## Todos / Ideas
-
-- Consider using a task runner for the (static) build
 - Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German
@@ -55,10 +22,16 @@
 - Rewrite in Angular, lol
 - Adopt a wombat, drink a coffee and enjoy life
 
-## Issues
+### Issues
 
 - **Banner blending issues [`WONTFIX`]:** Edge, Opera, Safari, older version of Firefox and Chrome, and multiple mobile browsers don't yet support [background-blend-mode](https://developer.mozilla.org/de/docs/Web/CSS/background-blend-mode) so the banner image either won't be blended or, sometimes, will even be blended through all z-indexes
 - **Banner image not centered [`FIXED`]**: In Opera, Safari, Firefox, older versions of Chrome, and multiple mobile browsers, the banner image was not centered, but translated 50% to the right: the problem was that said older browsers have not yet implemented the new CSS spec which says that [absolute-positioned children of a flexbox are supposed to be positioned based on the align and justify properties of the box](https://developers.google.com/web/updates/2016/06/absolute-positioned-children)
+
+### Commands
+
+- Install dependencies: `npm install`
+- Start development server on `localhost:3000`: `npm start`
+- Generate production build in the `/docs` folder: `npm run build`
 
 ## License
 

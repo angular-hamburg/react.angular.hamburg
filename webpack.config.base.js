@@ -4,6 +4,10 @@ const autoprefixer = require('autoprefixer')
 const postcssImport = require('postcss-import')
 const postcssImportUrl = require('postcss-import-url')
 const postcssCustomProperties = require('postcss-custom-properties')
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const ImageminPlugin = require('imagemin-webpack-plugin').default
+const imageminMozjpeg = require('imagemin-mozjpeg')
 
 module.exports = {
   dev: 'cheap-module-source-map',
@@ -52,6 +56,33 @@ module.exports = {
       }
     ]
   },
+  plugins: [
+    new CleanWebpackPlugin(['docs'], {
+      verbose: true
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: 'media/**'
+      },
+      {
+        context: '../node_modules',
+        from: 'font-awesome/**',
+        to: './vendors/'
+      }
+    ]),
+    new ImageminPlugin({
+      test: 'media/*',
+      pngquant: {
+        quality: '80-90'
+      },
+      jpegtran: null,
+      plugins: [
+        imageminMozjpeg({
+          quality: '80, 90'
+        })
+      ]
+    })
+  ],
   resolve: {
     extensions: ['', '.js']
   },
