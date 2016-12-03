@@ -8,7 +8,7 @@ export default function Link({
 }) {
   return (
     <a className={`${styles.link} ${className}`} href={href} title={title}>
-        {children}
+      {children}
     </a>
   )
 }

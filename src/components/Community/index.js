@@ -11,7 +11,7 @@ export default function Community() {
     return (
       <li className={styles.platform} key={i}>
         <Link className={styles.link} href={url} title={title}>
-          <span className={`fa fa-lg ${icon}`}></span>
+          <span className={`fa fa-lg ${icon}`} />
         </Link>
       </li>
     )
