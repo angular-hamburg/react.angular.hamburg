@@ -64,24 +64,14 @@ export const platforms = [
     url: 'https://www.meetup.com/Hamburg-AngularJS-Meetup'
   },
   {
-    title: 'angular.hamburg on Github',
-    icon: 'fa-github',
-    url: '#'
-  },
-  {
     title: 'angular.hamburg on Twitter',
     icon: 'fa-twitter',
-    url: '#'
+    url: 'https://twitter.com/angular_hamburg'
   },
   {
-    title: 'angular.hamburg on Facebook',
-    icon: 'fa-facebook',
-    url: '#'
-  },
-  {
-    title: 'angular.hamburg on Slack',
-    icon: 'fa-slack',
-    url: '#'
+    title: 'angular.hamburg on Github',
+    icon: 'fa-github',
+    url: 'https://github.com/MarkTiedemann/angular.hamburg'
   }
 ]
 
