@@ -29,9 +29,9 @@
 
 ### Commands
 
-- Install dependencies: `npm install`
-- Start development server on `localhost:3000`: `npm start`
-- Generate production build in the `/docs` folder: `npm run build`
+- **`npm install`**: installs dependencies
+- **`npm start`**: starts development server on `localhost:3000`
+- **`npm run build`**: generates production build in the `/docs` folder
 
 ## License
 
