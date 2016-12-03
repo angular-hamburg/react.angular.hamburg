@@ -50,6 +50,7 @@
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German
 - Consider implementing a light theme
+- Make A11y check
 - Implement API for retrieving the next Meetup and Talks dynamically
 - Improve `Next Meetup` section with host, location, time of day, spots available, and possibly a countdown clock
 - Consider rewriting CSS in LESS or SASS
