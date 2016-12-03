@@ -1,8 +1,6 @@
 
 const webpack = require('webpack')
 const baseConfig = require('./webpack.config.base')
-const ImageminPlugin = require('imagemin-webpack-plugin').default
-const imageminMozjpeg = require('imagemin-mozjpeg')
 
 baseConfig.plugins.concat([
   new webpack.DefinePlugin({
