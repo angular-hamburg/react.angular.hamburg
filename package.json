@@ -1,10 +1,10 @@
 {
   "name": "angular.hamburg",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint . --fix",
+    "lint": "eslint src --fix",
     "prestart": "npm run lint",
     "start": "webpack-dev-server --config webpack.config.dev.js -d --history-api-fallback --hot --inline --progress --colors",
     "prebuild": "npm run lint",
@@ -49,5 +49,43 @@
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",
     "webpack-hot-middleware": "^2.10.0"
+  },
+  "eslintConfig": {
+    "extends": "airbnb",
+    "parser": "babel-eslint",
+    "plugins": [
+      "import",
+      "jsx-a11y",
+      "react"
+    ],
+    "rules": {
+        "comma-dangle": [2, "never"],
+        "semi": [2, "never"],
+        "react/prop-types": "off",
+        "react/jsx-filename-extension": "off"
+    },
+    "globals": {
+        "window": false,
+        "document": false
+    }
+  },
+  "babel": {
+    "presets" : [
+      "es2015",
+      "react",
+      "stage-0",
+      "stage-1"
+    ],
+    "env": {
+      "production": {
+        "presets": [
+          "es2015",
+          "react",
+          "stage-0",
+          "stage-1",
+          "react-optimize"
+        ]
+      }
+    }
   }
 }
