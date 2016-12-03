@@ -27,7 +27,7 @@ function* typeWordIterator(string) {
   }
 
   // go backwards, delete word
-  for (let i = forward.length - 1; i >= 1; i += 1) {
+  for (let i = forward.length - 1; i >= 1; i -= 1) {
     yield forward[i]
   }
 }
