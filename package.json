@@ -1,14 +1,14 @@
 {
   "name": "angular.hamburg",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
     "lint": "eslint src --fix",
     "prestart": "npm run lint",
-    "start": "webpack-dev-server --config webpack.config.dev.js -d --history-api-fallback --hot --inline --progress --colors",
+    "start": "webpack-dev-server --config webpack-dev-config.js -d --history-api-fallback --hot --inline --progress --colors",
     "prebuild": "npm run lint",
-    "build": "webpack --config webpack.config.prod.js --progress --colors"
+    "build": "webpack --config webpack-prod-config.js --progress --colors"
   },
   "dependencies": {
     "react": "^15.1.0",

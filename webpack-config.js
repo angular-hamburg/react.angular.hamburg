@@ -4,8 +4,8 @@ const autoprefixer = require('autoprefixer')
 const postcssImport = require('postcss-import')
 const postcssImportUrl = require('postcss-import-url')
 const postcssCustomProperties = require('postcss-custom-properties')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin')
+const CleanPlugin = require('clean-webpack-plugin')
+const CopyPlugin = require('copy-webpack-plugin')
 const ImageminPlugin = require('imagemin-webpack-plugin').default
 const imageminMozjpeg = require('imagemin-mozjpeg')
 
@@ -57,10 +57,10 @@ module.exports = {
     ]
   },
   plugins: [
-    new CleanWebpackPlugin(['docs'], {
+    new CleanPlugin(['docs'], {
       verbose: true
     }),
-    new CopyWebpackPlugin([
+    new CopyPlugin([
       {
         from: 'media/**'
       },
@@ -84,7 +84,7 @@ module.exports = {
     })
   ],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['', '.js', '.css']
   },
   postcss: [
     autoprefixer,

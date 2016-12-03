@@ -1,8 +1,8 @@
 
 const webpack = require('webpack')
-const baseConfig = require('./webpack.config.base')
+const config = require('./webpack-config')
 
-baseConfig.plugins.concat([
+config.plugins.concat([
   new webpack.DefinePlugin({
     'process.env': {
       NODE_ENV: JSON.stringify('production')
@@ -18,4 +18,4 @@ baseConfig.plugins.concat([
   new webpack.optimize.DedupePlugin()
 ])
 
-module.exports = baseConfig
+module.exports = config

@@ -1,8 +1,8 @@
 
 const webpack = require('webpack')
-const baseConfig = require('./webpack.config.base')
+const config = require('./webpack-config')
 
-module.exports = Object.assign(baseConfig, {
+module.exports = Object.assign(config, {
   devServer: {
     host: 'localhost',
     port: 3000,
