@@ -29464,13 +29464,13 @@
 
 	var _Team2 = _interopRequireDefault(_Team);
 
-	var _Community = __webpack_require__(519);
+	var _Community = __webpack_require__(516);
 
 	var _Community2 = _interopRequireDefault(_Community);
 
 	var _config = __webpack_require__(492);
 
-	var _styles = __webpack_require__(522);
+	var _styles = __webpack_require__(519);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -31238,15 +31238,11 @@
 
 	var _Section2 = _interopRequireDefault(_Section);
 
-	var _Avatar = __webpack_require__(511);
-
-	var _Avatar2 = _interopRequireDefault(_Avatar);
-
-	var _Link = __webpack_require__(514);
+	var _Link = __webpack_require__(511);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
-	var _styles = __webpack_require__(517);
+	var _styles = __webpack_require__(514);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -31266,7 +31262,7 @@
 	      return _react2.default.createElement(
 	        'li',
 	        { className: _styles2.default.member, key: i },
-	        _react2.default.createElement(_Avatar2.default, { src: avatar, alt: name }),
+	        _react2.default.createElement('img', { className: _styles2.default.avatar, src: avatar, alt: name }),
 	        _react2.default.createElement(
 	          'div',
 	          { className: _styles2.default.name },
@@ -31313,10 +31309,11 @@
 	  value: true
 	});
 
-	var _templateObject = _taggedTemplateLiteral(['src'], ['src']),
-	    _templateObject2 = _taggedTemplateLiteral(['alt'], ['alt']);
+	var _templateObject = _taggedTemplateLiteral(['href'], ['href']),
+	    _templateObject2 = _taggedTemplateLiteral(['title'], ['title']),
+	    _templateObject3 = _taggedTemplateLiteral(['children'], ['children']);
 
-	exports.default = Avatar;
+	exports.default = Link;
 
 	var _react = __webpack_require__(299);
 
@@ -31334,14 +31331,20 @@
 
 	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
 
-	function Avatar(_ref) {
-	  var _ref$src = _ref.src,
-	      src = _ref$src === undefined ? (0, _throwIfMissing2.default)(_templateObject) : _ref$src,
-	      _ref$alt = _ref.alt,
-	      alt = _ref$alt === undefined ? (0, _throwIfMissing2.default)(_templateObject2) : _ref$alt,
-	      className = _ref.className;
+	function Link(_ref) {
+	  var _ref$href = _ref.href,
+	      href = _ref$href === undefined ? (0, _throwIfMissing2.default)(_templateObject) : _ref$href,
+	      _ref$title = _ref.title,
+	      title = _ref$title === undefined ? (0, _throwIfMissing2.default)(_templateObject2) : _ref$title,
+	      className = _ref.className,
+	      _ref$children = _ref.children,
+	      children = _ref$children === undefined ? (0, _throwIfMissing2.default)(_templateObject3) : _ref$children;
 
-	  return _react2.default.createElement('img', { className: _styles2.default.avatar + ' ' + className, src: src, alt: alt });
+	  return _react2.default.createElement(
+	    'a',
+	    { className: _styles2.default.link + ' ' + className, href: href, title: title },
+	    children
+	  );
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -31381,100 +31384,6 @@
 
 
 	// module
-	exports.push([module.id, "._1cAAw{width:100px;height:100px;border-radius:50%}", ""]);
-
-	// exports
-	exports.locals = {
-		"avatar": "_1cAAw"
-	};
-
-/***/ },
-/* 514 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _templateObject = _taggedTemplateLiteral(['href'], ['href']),
-	    _templateObject2 = _taggedTemplateLiteral(['title'], ['title']),
-	    _templateObject3 = _taggedTemplateLiteral(['children'], ['children']);
-
-	exports.default = Link;
-
-	var _react = __webpack_require__(299);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _throwIfMissing = __webpack_require__(496);
-
-	var _throwIfMissing2 = _interopRequireDefault(_throwIfMissing);
-
-	var _styles = __webpack_require__(515);
-
-	var _styles2 = _interopRequireDefault(_styles);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-	function Link(_ref) {
-	  var _ref$href = _ref.href,
-	      href = _ref$href === undefined ? (0, _throwIfMissing2.default)(_templateObject) : _ref$href,
-	      _ref$title = _ref.title,
-	      title = _ref$title === undefined ? (0, _throwIfMissing2.default)(_templateObject2) : _ref$title,
-	      className = _ref.className,
-	      _ref$children = _ref.children,
-	      children = _ref$children === undefined ? (0, _throwIfMissing2.default)(_templateObject3) : _ref$children;
-
-	  return _react2.default.createElement(
-	    'a',
-	    { className: _styles2.default.link + ' ' + className, href: href, title: title },
-	    children
-	  );
-	}
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ },
-/* 515 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(516);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(480)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 516 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(479)();
-	// imports
-
-
-	// module
 	exports.push([module.id, "._23dAa{font-size:14px;font-weight:300;color:#f8f8f8;text-decoration:none;-webkit-transition:.2s;transition:.2s}._23dAa:focus,._23dAa:hover{opacity:.6}", ""]);
 
 	// exports
@@ -31483,13 +31392,13 @@
 	};
 
 /***/ },
-/* 517 */
+/* 514 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(518);
+	var content = __webpack_require__(515);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(480)(content, {});
@@ -31509,7 +31418,7 @@
 	}
 
 /***/ },
-/* 518 */
+/* 515 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(479)();
@@ -31517,7 +31426,7 @@
 
 
 	// module
-	exports.push([module.id, "._2zipS{-webkit-box-flex:1;-ms-flex:1;flex:1;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;margin-top:8px;font-size:14px;font-weight:300;text-align:center;line-height:21px}@media (max-width:765px){._2zipS{margin-bottom:20px;-webkit-box-flex:50%;-ms-flex:50%;flex:50%}}._2Ma4G{width:100px;border-radius:30%}._1eSix{font-weight:400}.VaFaS{color:#f8f8f8;border-bottom:1px solid #8b8a8e;text-decoration:none}", ""]);
+	exports.push([module.id, "._2zipS{-webkit-box-flex:1;-ms-flex:1;flex:1;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;margin-top:8px;font-size:14px;font-weight:300;text-align:center;line-height:21px}@media (max-width:765px){._2zipS{margin-bottom:20px;-webkit-box-flex:50%;-ms-flex:50%;flex:50%}}._2Ma4G{width:100px;height:100px;border-radius:50%}._1eSix{font-weight:400}.VaFaS{color:#f8f8f8;border-bottom:1px solid #8b8a8e;text-decoration:none}", ""]);
 
 	// exports
 	exports.locals = {
@@ -31528,7 +31437,7 @@
 	};
 
 /***/ },
-/* 519 */
+/* 516 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
@@ -31548,11 +31457,11 @@
 
 	var _Section2 = _interopRequireDefault(_Section);
 
-	var _Link = __webpack_require__(514);
+	var _Link = __webpack_require__(511);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
-	var _styles = __webpack_require__(520);
+	var _styles = __webpack_require__(517);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -31589,13 +31498,13 @@
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 520 */
+/* 517 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(521);
+	var content = __webpack_require__(518);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(480)(content, {});
@@ -31615,7 +31524,7 @@
 	}
 
 /***/ },
-/* 521 */
+/* 518 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(479)();
@@ -31633,13 +31542,13 @@
 	};
 
 /***/ },
-/* 522 */
+/* 519 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(523);
+	var content = __webpack_require__(520);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(480)(content, {});
@@ -31659,7 +31568,7 @@
 	}
 
 /***/ },
-/* 523 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(479)();
