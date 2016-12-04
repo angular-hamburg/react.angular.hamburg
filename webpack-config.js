@@ -58,11 +58,12 @@ module.exports = {
   },
   plugins: [
     new CleanPlugin(['docs'], {
-      verbose: true
+      verbose: true,
+      dry: process.env.NODE_ENV !== 'production'
     }),
     new CopyPlugin([
       {
-        from: 'service-*.js'
+        from: 'service-worker.js'
       },
       {
         from: 'media/**'

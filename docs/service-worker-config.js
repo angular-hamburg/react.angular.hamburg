@@ -1,19 +1,19 @@
 navigator.serviceWorkerConfig = {
   prefetch: [
-    '/',
-    'bundle.js',
-    'service-worker-config.js',
-    'media/favicons/favicon.ico',
-    'media/favicons/manifest.json',
-    'vendors/font-awesome/css/font-awesome.min.css',
-    'vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.7.0',
-    'media/banner.jpg',
-    'media/logo.jpg',
-    'media/preview.png',
-    'media/talk1.png',
-    'media/team1.jpg',
-    'media/team2.jpg',
-    'media/team3.jpg',
-    'media/team4.jpg'
+    'angular.hamburg/',
+    'angular.hamburg/bundle.js',
+    'angular.hamburg/service-worker-config.js',
+    'angular.hamburg/media/favicons/favicon.ico',
+    'angular.hamburg/media/favicons/manifest.json',
+    'angular.hamburg/vendors/font-awesome/css/font-awesome.min.css',
+    'angular.hamburg/vendors/font-awesome/fonts/fontawesome-webfont.woff2?v=4.7.0',
+    'angular.hamburg/media/banner.jpg',
+    'angular.hamburg/media/logo.jpg',
+    'angular.hamburg/media/preview.png',
+    'angular.hamburg/media/talk1.png',
+    'angular.hamburg/media/team1.jpg',
+    'angular.hamburg/media/team2.jpg',
+    'angular.hamburg/media/team3.jpg',
+    'angular.hamburg/media/team4.jpg'
   ]
 }

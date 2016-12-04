@@ -1,15 +1,15 @@
 {
   "name": "angular.hamburg",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
     "lint": "eslint src --fix",
-    "generate-service-worker-config": "node generate-service-worker-config.js",
-    "prestart": "npm run lint && npm run generate-service-worker-config",
+    "prestart": "npm run lint && node generate-service-worker-config.js",
     "start": "webpack-dev-server --config webpack-dev-config.js -d --history-api-fallback --hot --inline --progress --colors",
-    "prebuild": "npm run lint && npm run generate-service-worker-config",
-    "build": "webpack --config webpack-prod-config.js --progress --colors"
+    "prebuild": "npm run lint",
+    "build": "cross-env NODE_ENV=production webpack --config webpack-prod-config.js --progress --colors",
+    "postbuild": "cross-env NODE_ENV=production node generate-service-worker-config.js"
   },
   "dependencies": {
     "react": "^15.1.0",
@@ -30,6 +30,7 @@
     "babel-preset-stage-1": "^6.5.0",
     "clean-webpack-plugin": "^0.1.14",
     "copy-webpack-plugin": "^4.0.1",
+    "cross-env": "^3.1.3",
     "css-loader": "^0.26.1",
     "eslint": "^3.11.1",
     "eslint-config-airbnb": "^13.0.0",

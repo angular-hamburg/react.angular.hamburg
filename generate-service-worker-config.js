@@ -6,7 +6,6 @@ const glob = require('glob-all')
 // TODO: Publish as a new module on npm
 
 const list = [
-  '/',
   'bundle.js',
   'service-worker-config.js',
   'media/favicons/favicon.ico',
@@ -19,29 +18,47 @@ const patterns = [
   'media/*'
 ]
 
-const generateConfig = ({ 
-  dir = 'src', 
-  name = 'service-worker-config.js', 
+const generateConfig = ({
+  inputDirectory = 'src',
+  outputDirectory = 'dist',
+  name = 'service-worker-config.js',
   global = 'serviceWorkerConfig',
-  resourceList = [], 
-  resourcePatterns = []
+  root = true,
+  resourceList = [],
+  resourcePatterns = [],
+  relativePath = '',
+  verbose = false
 } = {}) => {
 
-  const foundResources = glob.sync(resourcePatterns, { cwd: dir, nodir: true })
+  const foundResources = glob.sync(resourcePatterns, { cwd: inputDirectory, nodir: true })
+  const allResources = resourceList.concat(foundResources)
 
-  const resources = resourceList.concat(foundResources).map(res => `    '${res}'`).join(',\n')
+  if (root) {
+    allResources.unshift('')
+  }
+
+  const absoluteResources = allResources.map(res => `${relativePath}/${res}`)
+
+  if (verbose) {
+    for (let res of absoluteResources) console.log(`Added '${res}' to be prefetched`)
+  }
+
+  const resources = absoluteResources.map(res => `    '${res}'`).join(',\n')
     
-  const template = 
+  const template =
 `navigator.${global} = {
   prefetch: [
 ${resources}
   ]
 }`
 
-  fs.writeFileSync(path.join(dir, name), template)
+  fs.writeFileSync(path.join(outputDirectory, name), template)
 }
 
 generateConfig({ 
-  resourceList: list, 
-  resourcePatterns: patterns 
+  outputDirectory: process.env.NODE_ENV === 'production' ? 'docs' : 'src',
+  resourceList: list,
+  resourcePatterns: patterns,
+  relativePath: process.env.NODE_ENV === 'production' ? 'angular.hamburg' : '',
+  verbose: true
 })

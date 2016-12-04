@@ -8182,6 +8182,8 @@
 
 	'use strict';
 
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	var _react = __webpack_require__(299);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -8194,7 +8196,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	(0, _reactDom.render)(_react2.default.createElement(_App2.default, null), document.getElementById('root'));
+	(0, _reactDom.render)(_jsx(_App2.default, {}), document.getElementById('root'));
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
@@ -29430,6 +29432,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = App;
 
 	var _react = __webpack_require__(299);
@@ -29476,27 +29481,27 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var _ref = _jsx(_Indicator2.default, {});
+
+	var _ref2 = _jsx(_Banner2.default, {});
+
+	var _ref3 = _jsx(_Header2.default, {});
+
+	var _ref4 = _jsx(_Talks2.default, {});
+
+	var _ref5 = _jsx(_Section2.default, {
+	  title: 'What is this all about?',
+	  text: _config.aboutUs
+	});
+
+	var _ref6 = _jsx(_Team2.default, {});
+
+	var _ref7 = _jsx(_Community2.default, {});
+
 	function App() {
-	  return _react2.default.createElement(
-	    'div',
-	    null,
-	    _react2.default.createElement(_Indicator2.default, null),
-	    _react2.default.createElement(_Banner2.default, null),
-	    _react2.default.createElement(
-	      _Container2.default,
-	      null,
-	      _react2.default.createElement(_Header2.default, null),
-	      _react2.default.createElement(_Talks2.default, null),
-	      _react2.default.createElement(_Section2.default, { title: 'What is this all about?', text: _config.aboutUs }),
-	      _react2.default.createElement(_Team2.default, null),
-	      _react2.default.createElement(_Community2.default, null),
-	      _react2.default.createElement(
-	        'span',
-	        { className: _styles2.default.footer },
-	        'Made with \u2693 in Hamburg'
-	      )
-	    )
-	  );
+	  return _jsx('div', {}, void 0, _ref, _ref2, _jsx(_Container2.default, {}, void 0, _ref3, _ref4, _ref5, _ref6, _ref7, _jsx('span', {
+	    className: _styles2.default.footer
+	  }, void 0, 'Made with \u2693 in Hamburg')));
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -29512,6 +29517,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -29565,11 +29572,9 @@
 	    value: function render() {
 	      if (this.state !== null) {
 	        var status = this.state.online ? _styles2.default.online : _styles2.default.offline;
-	        return _react2.default.createElement(
-	          'div',
-	          { className: _styles2.default.indicator + ' ' + status },
-	          'You are currently offline'
-	        );
+	        return _jsx('div', {
+	          className: _styles2.default.indicator + ' ' + status
+	        }, void 0, 'You are currently offline');
 	      }
 
 	      return null;
@@ -29948,6 +29953,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = Banner;
 
 	var _react = __webpack_require__(299);
@@ -29961,21 +29969,27 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function Banner() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: _styles2.default.outerContainer },
-	    _react2.default.createElement('div', { className: _styles2.default.overlay + ' ' + _styles2.default.blend }),
-	    _react2.default.createElement('div', { className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom }),
-	    _react2.default.createElement('div', { className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom }),
-	    _react2.default.createElement('div', { className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom }),
-	    _react2.default.createElement('div', { className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom }),
-	    _react2.default.createElement('div', { className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom }),
-	    _react2.default.createElement(
-	      'div',
-	      { className: _styles2.default.innerContainer },
-	      _react2.default.createElement('img', { className: _styles2.default.bannerImg, src: 'media/banner.jpg', alt: 'banner' })
-	    )
-	  );
+	  return _jsx('div', {
+	    className: _styles2.default.outerContainer
+	  }, void 0, _jsx('div', {
+	    className: _styles2.default.overlay + ' ' + _styles2.default.blend
+	  }), _jsx('div', {
+	    className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom
+	  }), _jsx('div', {
+	    className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom
+	  }), _jsx('div', {
+	    className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom
+	  }), _jsx('div', {
+	    className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom
+	  }), _jsx('div', {
+	    className: _styles2.default.overlay + ' ' + _styles2.default.gradientBottom
+	  }), _jsx('div', {
+	    className: _styles2.default.innerContainer
+	  }, void 0, _jsx('img', {
+	    className: _styles2.default.bannerImg,
+	    src: 'media/banner.jpg',
+	    alt: 'banner'
+	  })));
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -30038,6 +30052,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = Header;
 
 	var _react = __webpack_require__(299);
@@ -30064,43 +30081,30 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var _ref = _jsx(_Logo2.default, {});
+
+	var _ref2 = _jsx('br', {});
+
+	var _ref3 = _jsx(_Typer2.default, {});
+
 	function Header() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: _styles2.default.root },
-	    _react2.default.createElement(_Logo2.default, null),
-	    _react2.default.createElement(
-	      'div',
-	      { className: _styles2.default.content },
-	      _react2.default.createElement(
-	        'div',
-	        { className: _styles2.default.info },
-	        _react2.default.createElement(
-	          'h1',
-	          { className: _styles2.default.title },
-	          'Hamburg\'s',
-	          _react2.default.createElement('br', null),
-	          'Angular Meetup'
-	        ),
-	        _react2.default.createElement(_Typer2.default, null),
-	        _react2.default.createElement(
-	          'div',
-	          { className: _styles2.default.date },
-	          'Next Meetup on ',
-	          _react2.default.createElement(
-	            'span',
-	            { className: _styles2.default.highlight },
-	            _config.nextMeetup.date
-	          )
-	        ),
-	        _react2.default.createElement(
-	          _Button2.default,
-	          { className: _styles2.default.button, href: _config.nextMeetup.link, large: true },
-	          'RSVP & Join us on Meetup'
-	        )
-	      )
-	    )
-	  );
+	  return _jsx('div', {
+	    className: _styles2.default.root
+	  }, void 0, _ref, _jsx('div', {
+	    className: _styles2.default.content
+	  }, void 0, _jsx('div', {
+	    className: _styles2.default.info
+	  }, void 0, _jsx('h1', {
+	    className: _styles2.default.title
+	  }, void 0, 'Hamburg\'s', _ref2, 'Angular Meetup'), _ref3, _jsx('div', {
+	    className: _styles2.default.date
+	  }, void 0, 'Next Meetup on ', _jsx('span', {
+	    className: _styles2.default.highlight
+	  }, void 0, _config.nextMeetup.date)), _jsx(_Button2.default, {
+	    className: _styles2.default.button,
+	    href: _config.nextMeetup.link,
+	    large: true
+	  }, void 0, 'RSVP & Join us on Meetup'))));
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -30116,6 +30120,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = Logo;
 
 	var _react = __webpack_require__(299);
@@ -30129,11 +30136,13 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function Logo() {
-	  return _react2.default.createElement(
-	    'div',
-	    { className: _styles2.default.container },
-	    _react2.default.createElement('img', { className: _styles2.default.logo, src: 'media/logo.jpg', role: 'presentation' })
-	  );
+	  return _jsx('div', {
+	    className: _styles2.default.container
+	  }, void 0, _jsx('img', {
+	    className: _styles2.default.logo,
+	    src: 'media/logo.jpg',
+	    role: 'presentation'
+	  }));
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -30193,6 +30202,8 @@
 	  value: true
 	});
 
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _react = __webpack_require__(299);
@@ -30246,17 +30257,13 @@
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
-	        'div',
-	        { className: _styles2.default.root },
-	        _react2.default.createElement(
-	          'span',
-	          { className: _styles2.default.text },
-	          'for',
-	          this.state ? this.state.text : ''
-	        ),
-	        _react2.default.createElement('span', { className: _styles2.default.cursor })
-	      );
+	      return _jsx('div', {
+	        className: _styles2.default.root
+	      }, void 0, _jsx('span', {
+	        className: _styles2.default.text
+	      }, void 0, 'for', this.state ? this.state.text : ''), _jsx('span', {
+	        className: _styles2.default.cursor
+	      }));
 	    }
 	  }]);
 
@@ -30714,6 +30721,8 @@
 	  value: true
 	});
 
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	var _templateObject = _taggedTemplateLiteral(['href'], ['href']);
 
 	exports.default = Button;
@@ -30744,14 +30753,10 @@
 	      className = _ref.className,
 	      children = _ref.children;
 
-	  return _react2.default.createElement(
-	    'a',
-	    {
-	      className: _styles2.default.button + '\n         ' + (secondary ? _styles2.default.secondary : '') + '\n         ' + (large ? _styles2.default.large : '') + ' \n         ' + className,
-	      href: href
-	    },
-	    children
-	  );
+	  return _jsx('a', {
+	    className: _styles2.default.button + '\n         ' + (secondary ? _styles2.default.secondary : '') + '\n         ' + (large ? _styles2.default.large : '') + ' \n         ' + className,
+	    href: href
+	  }, void 0, children);
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -30870,6 +30875,8 @@
 	  value: true
 	});
 
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	var _templateObject = _taggedTemplateLiteral(['children'], ['children']);
 
 	exports.default = Container;
@@ -30894,11 +30901,9 @@
 	  var _ref$children = _ref.children,
 	      children = _ref$children === undefined ? (0, _throwIfMissing2.default)(_templateObject) : _ref$children;
 
-	  return _react2.default.createElement(
-	    'div',
-	    { className: _styles2.default.root },
-	    children
-	  );
+	  return _jsx('div', {
+	    className: _styles2.default.root
+	  }, void 0, children);
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -30956,6 +30961,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = Talks;
 
 	var _react = __webpack_require__(299);
@@ -30978,6 +30986,8 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var _ref = _jsx('br', {});
+
 	function Talks() {
 	  var renderReservedSlot = function renderReservedSlot(talk, key) {
 	    var title = talk.title,
@@ -30985,56 +30995,33 @@
 	        banner = talk.banner,
 	        description = talk.description;
 
-	    return _react2.default.createElement(
-	      'li',
-	      { className: _styles2.default.talk, key: key },
-	      _react2.default.createElement(
-	        'h3',
-	        { className: _styles2.default.title },
-	        title
-	      ),
-	      _react2.default.createElement(
-	        'p',
-	        null,
-	        'by ',
-	        speaker
-	      ),
-	      _react2.default.createElement('img', { className: _styles2.default.banner, src: banner, alt: title }),
-	      _react2.default.createElement(
-	        'p',
-	        { className: _styles2.default.description },
-	        description
-	      )
-	    );
+	    return _jsx('li', {
+	      className: _styles2.default.talk
+	    }, key, _jsx('h3', {
+	      className: _styles2.default.title
+	    }, void 0, title), _jsx('p', {}, void 0, 'by ', speaker), _jsx('img', {
+	      className: _styles2.default.banner,
+	      src: banner,
+	      alt: title
+	    }), _jsx('p', {
+	      className: _styles2.default.description
+	    }, void 0, description));
 	  };
 
 	  var renderFreeSlot = function renderFreeSlot(key) {
-	    return _react2.default.createElement(
-	      'li',
-	      { className: _styles2.default.talk + ' ' + _styles2.default.freeSlot, key: key },
-	      _react2.default.createElement(
-	        'h3',
-	        { className: _styles2.default.title },
-	        'Free Slot'
-	      ),
-	      _react2.default.createElement(
-	        'p',
-	        { className: _styles2.default.description },
-	        'This slot could be yours!'
-	      ),
-	      _react2.default.createElement(
-	        _Button2.default,
-	        { className: _styles2.default.submit, href: '#', secondary: true },
-	        'Submit a Talk'
-	      ),
-	      _react2.default.createElement(
-	        'p',
-	        { className: _styles2.default.note },
-	        'Trouble finding an idea for a talk?',
-	        _react2.default.createElement('br', null),
-	        'Feel free to contact us.'
-	      )
-	    );
+	    return _jsx('li', {
+	      className: _styles2.default.talk + ' ' + _styles2.default.freeSlot
+	    }, key, _jsx('h3', {
+	      className: _styles2.default.title
+	    }, void 0, 'Free Slot'), _jsx('p', {
+	      className: _styles2.default.description
+	    }, void 0, 'This slot could be yours!'), _jsx(_Button2.default, {
+	      className: _styles2.default.submit,
+	      href: '#',
+	      secondary: true
+	    }, void 0, 'Submit a Talk'), _jsx('p', {
+	      className: _styles2.default.note
+	    }, void 0, 'Trouble finding an idea for a talk?', _ref, 'Feel free to contact us.'));
 	  };
 
 	  var renderTalks = function renderTalks() {
@@ -31046,11 +31033,10 @@
 	    });
 	  };
 
-	  return _react2.default.createElement(
-	    _Section2.default,
-	    { contentClassName: _styles2.default.content, title: 'The Talks' },
-	    renderTalks()
-	  );
+	  return _jsx(_Section2.default, {
+	    contentClassName: _styles2.default.content,
+	    title: 'The Talks'
+	  }, void 0, renderTalks());
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -31066,6 +31052,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
 
 	var _templateObject = _taggedTemplateLiteral(['title'], ['title']);
 
@@ -31094,29 +31082,17 @@
 	      children = _ref.children,
 	      contentClassName = _ref.contentClassName;
 
-	  return _react2.default.createElement(
-	    'div',
-	    { className: _styles2.default.root },
-	    _react2.default.createElement(
-	      'h2',
-	      { className: _styles2.default.title },
-	      _react2.default.createElement(
-	        'span',
-	        { className: _styles2.default.highlight },
-	        title
-	      )
-	    ),
-	    text && _react2.default.createElement(
-	      'p',
-	      { className: _styles2.default.text },
-	      text
-	    ),
-	    children && _react2.default.createElement(
-	      'ul',
-	      { className: _styles2.default.content + ' ' + contentClassName },
-	      children
-	    )
-	  );
+	  return _jsx('div', {
+	    className: _styles2.default.root
+	  }, void 0, _jsx('h2', {
+	    className: _styles2.default.title
+	  }, void 0, _jsx('span', {
+	    className: _styles2.default.highlight
+	  }, void 0, title)), text && _jsx('p', {
+	    className: _styles2.default.text
+	  }, void 0, text), children && _jsx('ul', {
+	    className: _styles2.default.content + ' ' + contentClassName
+	  }, void 0, children));
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -31227,6 +31203,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = Team;
 
 	var _react = __webpack_require__(299);
@@ -31258,40 +31237,27 @@
 	          twitter = member.twitter,
 	          avatar = member.avatar;
 
-	      return _react2.default.createElement(
-	        'li',
-	        { className: _styles2.default.member, key: i },
-	        _react2.default.createElement('img', { className: _styles2.default.avatar, src: avatar, alt: name }),
-	        _react2.default.createElement(
-	          'div',
-	          { className: _styles2.default.name },
-	          name
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          null,
-	          job
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          null,
-	          'at ',
-	          company
-	        ),
-	        _react2.default.createElement(
-	          _Link2.default,
-	          { className: _styles2.default.link, target: '_blank', href: 'http://twitter.com/' + twitter, title: twitter + ' on Twitter' },
-	          '@' + twitter
-	        )
-	      );
+	      return _jsx('li', {
+	        className: _styles2.default.member
+	      }, i, _jsx('img', {
+	        className: _styles2.default.avatar,
+	        src: avatar,
+	        alt: name
+	      }), _jsx('div', {
+	        className: _styles2.default.name
+	      }, void 0, name), _jsx('div', {}, void 0, job), _jsx('div', {}, void 0, 'at ', company), _jsx(_Link2.default, {
+	        className: _styles2.default.link,
+	        target: '_blank',
+	        href: 'http://twitter.com/' + twitter,
+	        title: twitter + ' on Twitter'
+	      }, void 0, '@' + twitter));
 	    });
 	  };
 
-	  return _react2.default.createElement(
-	    _Section2.default,
-	    { title: 'The Team', contentClassName: _styles2.default.team },
-	    members()
-	  );
+	  return _jsx(_Section2.default, {
+	    title: 'The Team',
+	    contentClassName: _styles2.default.team
+	  }, void 0, members());
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -31307,6 +31273,8 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
 
 	var _templateObject = _taggedTemplateLiteral(['href'], ['href']),
 	    _templateObject2 = _taggedTemplateLiteral(['title'], ['title']),
@@ -31339,11 +31307,11 @@
 	      _ref$children = _ref.children,
 	      children = _ref$children === undefined ? (0, _throwIfMissing2.default)(_templateObject3) : _ref$children;
 
-	  return _react2.default.createElement(
-	    'a',
-	    { className: _styles2.default.link + ' ' + className, href: href, title: title },
-	    children
-	  );
+	  return _jsx('a', {
+	    className: _styles2.default.link + ' ' + className,
+	    href: href,
+	    title: title
+	  }, void 0, children);
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -31447,6 +31415,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
 	exports.default = Community;
 
 	var _react = __webpack_require__(299);
@@ -31476,23 +31447,22 @@
 	          icon = platform.icon,
 	          url = platform.url;
 
-	      return _react2.default.createElement(
-	        'li',
-	        { className: _styles2.default.platform, key: i },
-	        _react2.default.createElement(
-	          _Link2.default,
-	          { className: _styles2.default.link, href: url, title: title },
-	          _react2.default.createElement('span', { className: 'fa fa-lg ' + icon })
-	        )
-	      );
+	      return _jsx('li', {
+	        className: _styles2.default.platform
+	      }, i, _jsx(_Link2.default, {
+	        className: _styles2.default.link,
+	        href: url,
+	        title: title
+	      }, void 0, _jsx('span', {
+	        className: 'fa fa-lg ' + icon
+	      })));
 	    });
 	  };
 
-	  return _react2.default.createElement(
-	    _Section2.default,
-	    { contentClassName: _styles2.default.container, title: 'Join the Community' },
-	    renderPlatforms()
-	  );
+	  return _jsx(_Section2.default, {
+	    contentClassName: _styles2.default.container,
+	    title: 'Join the Community'
+	  }, void 0, renderPlatforms());
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\Mark\\Desktop\\HQ\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
