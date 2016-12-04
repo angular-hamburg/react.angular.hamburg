@@ -27,8 +27,7 @@
     <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        const relativePath = location.href === 'http://localhost:3000/' ? '' : 'angular.hamburg'
-        navigator.serviceWorker.register(relativePath + '/service-worker.js')
+        navigator.serviceWorker.register('/service-worker.js')
           .catch(e => console.log('Failed to register:', e))
       })
     }
