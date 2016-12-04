@@ -4,12 +4,13 @@
 // based on https://github.com/GoogleChrome/samples/blob/gh-pages/service-worker/basic/service-worker.js
 
 try {
-  importScripts('service-worker-config.js')
+  const relativePath = location.href.startsWith('http://localhost:3000/') ? '' : '/angular.hamburg'
+  importScripts(relativePath + '/service-worker-config.js')
 } catch (e) {
   console.log('Failed to import:', e)
 }
 
-const VERSION = '0.4.3'
+const VERSION = '0.4.4'
 const PREFETCH_CACHE = `ng-hh-prefetch-cache-v${VERSION}`
 const RUNTIME_CACHE = `ng-hh-runtime-cache-v${VERSION}`
 
@@ -18,7 +19,8 @@ const RUNTIME_CACHE = `ng-hh-runtime-cache-v${VERSION}`
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(PREFETCH_CACHE)
-      .then(cache => cache.addAll(navigator.serviceWorkerConfig.prefetch || '/'))
+      .then(cache => cache.addAll(navigator.serviceWorkerConfig ? 
+        navigator.serviceWorkerConfig.prefetch : '/'))
       .then(self.skipWaiting())
   )
 })
