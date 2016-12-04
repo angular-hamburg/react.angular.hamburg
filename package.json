@@ -1,13 +1,14 @@
 {
   "name": "angular.hamburg",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
     "lint": "eslint src --fix",
-    "prestart": "npm run lint",
+    "generate-service-worker-config": "node generate-service-worker-config.js",
+    "prestart": "npm run lint && npm run generate-service-worker-config",
     "start": "webpack-dev-server --config webpack-dev-config.js -d --history-api-fallback --hot --inline --progress --colors",
-    "prebuild": "npm run lint",
+    "prebuild": "npm run lint && npm run generate-service-worker-config",
     "build": "webpack --config webpack-prod-config.js --progress --colors"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "eslint-plugin-react": "^6.7.1",
     "file-loader": "^0.9.0",
     "font-awesome": "^4.7.0",
+    "glob-all": "^3.1.0",
     "imagemin-mozjpeg": "^6.0.0",
     "imagemin-webpack-plugin": "^1.4.4",
     "postcss-custom-properties": "^5.0.1",
@@ -59,18 +61,25 @@
       "react"
     ],
     "rules": {
-        "comma-dangle": [2, "never"],
-        "semi": [2, "never"],
-        "react/prop-types": "off",
-        "react/jsx-filename-extension": "off"
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "semi": [
+        2,
+        "never"
+      ],
+      "react/prop-types": "off",
+      "react/jsx-filename-extension": "off"
     },
     "globals": {
-        "window": false,
-        "document": false
+      "window": false,
+      "document": false,
+      "navigator": false
     }
   },
   "babel": {
-    "presets" : [
+    "presets": [
       "es2015",
       "react",
       "stage-0",

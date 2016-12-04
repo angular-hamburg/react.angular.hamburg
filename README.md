@@ -11,7 +11,6 @@
 
 ### Todos / Ideas
 
-- Implement offline support via Service Worker, decide on caching strategies
 - Buy the `angular.hamburg` domain
 - Start I18N, specifically for supporting German
 - Consider implementing a light theme

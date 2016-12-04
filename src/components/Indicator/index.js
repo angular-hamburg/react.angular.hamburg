@@ -4,6 +4,12 @@ import styles from './styles.css'
 
 export default class Typer extends Component {
 
+  componentWillMount() {
+    if (!navigator.onLine) {
+      this.setState({ online: false })
+    }
+  }
+
   componentDidMount() {
     window.addEventListener('online', () =>
       this.setState({ online: true }))

@@ -29541,6 +29541,13 @@
 	  }
 
 	  _createClass(Typer, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      if (!navigator.onLine) {
+	        this.setState({ online: false });
+	      }
+	    }
+	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      var _this2 = this;

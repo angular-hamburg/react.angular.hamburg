@@ -62,6 +62,9 @@ module.exports = {
     }),
     new CopyPlugin([
       {
+        from: 'service-*.js'
+      },
+      {
         from: 'media/**'
       },
       {
