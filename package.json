@@ -1,15 +1,19 @@
 {
   "name": "angular.hamburg",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
     "lint": "eslint src --fix",
-    "prestart": "npm run lint && node generate-service-worker-config.js",
+    "sync-sw": "node scripts/sync-service-worker-version.js",
+    "sync-sw:prod": "cross-env NODE_ENV=production node scripts/sync-service-worker-version.js",
+    "generate-sw": "node scripts/generate-service-worker-config.js",
+    "generate-sw:prod": "cross-env NODE_ENV=production node scripts/generate-service-worker-config.js", 
+    "prestart": "npm run lint && npm run sync-sw && npm run generate-sw",
     "start": "webpack-dev-server --config webpack-dev-config.js -d --history-api-fallback --hot --inline --progress --colors",
     "prebuild": "npm run lint",
     "build": "cross-env NODE_ENV=production webpack --config webpack-prod-config.js --progress --colors",
-    "postbuild": "cross-env NODE_ENV=production node generate-service-worker-config.js"
+    "postbuild": "npm run sync-sw:prod && npm run generate-sw:prod"
   },
   "dependencies": {
     "react": "^15.1.0",

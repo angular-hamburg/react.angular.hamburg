@@ -43,12 +43,14 @@ ${resourcesAsString}
 }`
 
   const filePath = path.join(outputDirectory, serviceWorkerName)
+  if (verbose) console.log(`Trying to save Service Worker config in '${filePath}' ...`)
   fs.writeFileSync(filePath, template)
-  if (verbose) console.log(`Saved Service Worker config in '${filePath}'`)
+  if (verbose) console.log(`... done.`)
 }
 
 generateServiceWorkerConfig({ 
-  outputDirectory: process.env.NODE_ENV === 'production' ? 'docs' : 'src',
+  outputDirectory: path.join(__dirname,
+    process.env.NODE_ENV === 'production' ? '../docs' : '../src'),
   prefetchResources: [
     'bundle.js',
     'service-worker-config.js',
