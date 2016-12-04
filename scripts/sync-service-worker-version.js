@@ -14,7 +14,7 @@ const syncServiceWorkerVersion = ({
 } = {}) => {
   const filePath = path.join(serviceWorkerDirectory, serviceWorkerFile)
   const oldFile = fs.readFileSync(filePath).toString()
-  const regExp = new RegExp(versionVariableName + `(\s?)=(\s?)('|")(.{5})('|")`, 'g')
+  const regExp = new RegExp(versionVariableName + `(\\s?)=(\\s?)('|")(.{5})('|")`, 'g')
   const quotes = versionVariableSingleQuotes ? `'` : `"`
   const newFile = oldFile.replace(regExp, `${versionVariableName} = ${quotes}${version}${quotes}`)
   if (verbose) console.log(`Trying to synchronize version '${version}' with '${filePath}' ...`)
