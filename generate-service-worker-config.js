@@ -59,5 +59,6 @@ generateConfig({
   outputDirectory: process.env.NODE_ENV === 'production' ? 'docs' : 'src',
   resourceList: list,
   resourcePatterns: patterns,
+  relativePath: process.env.NODE_ENV === 'production' ? '/angular.hamburg' : '',
   verbose: true
 })
