@@ -9,7 +9,7 @@ try {
   console.log('Failed to import:', e)
 }
 
-const VERSION = '0.4.1'
+const VERSION = '0.4.2'
 const PREFETCH_CACHE = `ng-hh-prefetch-cache-v${VERSION}`
 const RUNTIME_CACHE = `ng-hh-runtime-cache-v${VERSION}`
 
