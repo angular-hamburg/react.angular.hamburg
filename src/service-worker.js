@@ -3,29 +3,28 @@
 
 // based on https://github.com/GoogleChrome/samples/blob/gh-pages/service-worker/basic/service-worker.js
 
+const DEV_ENV = location.href.startsWith('http://localhost:3000/')
+
 try {
-  const relativePath = location.href.startsWith('http://localhost:3000/') ? '' : '/angular.hamburg'
+  const relativePath = DEV_ENV ? '' : '/angular.hamburg'
   importScripts(relativePath + '/service-worker-config.js')
 } catch (e) {
   console.log('Failed to import:', e)
 }
 
-const VERSION = '0.4.6'
+const VERSION = '0.5.0'
 const PREFETCH_CACHE = `ng-hh-prefetch-cache-v${VERSION}`
 const RUNTIME_CACHE = `ng-hh-runtime-cache-v${VERSION}`
-
-// prefetch static resources
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(PREFETCH_CACHE)
       .then(cache => cache.addAll(navigator.serviceWorkerConfig ? 
         navigator.serviceWorkerConfig.prefetch : '/'))
-      .then(self.skipWaiting())
+      .then(() => self.skipWaiting())
+      .catch(e => DEV_ENV ? console.error('Failed to prefetch:', e) : 0)
   )
 })
-
-// delete old caches
 
 self.addEventListener('activate', event => {
   const currentCaches = [PREFETCH_CACHE, RUNTIME_CACHE]
@@ -36,11 +35,11 @@ self.addEventListener('activate', event => {
       return Promise.all(cachesToDelete.map(cacheToDelete => {
         return caches.delete(cacheToDelete)
       }))
-    }).then(() => self.clients.claim())
+    })
+    .then(() => self.clients.claim())
+    .catch(e => DEV_ENV ? console.error('Failed to delete:', e) : 0)
   )
 })
-
-// handle fetch events, cache first
 
 self.addEventListener('fetch', event => {
   event.respondWith(
@@ -54,7 +53,8 @@ self.addEventListener('fetch', event => {
           return cache.put(event.request, response.clone()).then(() => {
             return response
           })
-        }).catch(() => console.log('Failed to fetch:', event.request.url))
+        })
+        .catch(e => DEV_ENV ? console.error('Failed to catch:', e) : 0)
       })
     })
   )

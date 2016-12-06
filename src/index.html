@@ -27,11 +27,12 @@
     <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        const relativePath = location.href === 'http://localhost:3000/' ? '' : '/angular.hamburg'
+        const DEV_ENV = location.href.startsWith('http://localhost:3000/')
+        const relativePath = DEV_ENV ? '' : '/angular.hamburg'
         navigator.serviceWorker.register(relativePath + '/service-worker.js', { 
           scope: relativePath + '/' 
         })
-        .catch(e => console.log('Failed to register:', e))
+        .catch(e => DEV_ENV ? console.error('Failed to register:', e) : 0)
       })
     }
     </script>
