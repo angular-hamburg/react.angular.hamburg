@@ -1,19 +1,17 @@
 {
   "name": "angular.hamburg",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
     "lint": "eslint src --fix",
-    "sync-sw": "node scripts/sync-service-worker-version.js",
-    "sync-sw:prod": "cross-env NODE_ENV=production node scripts/sync-service-worker-version.js",
-    "generate-sw": "node scripts/generate-service-worker-config.js",
-    "generate-sw:prod": "cross-env NODE_ENV=production node scripts/generate-service-worker-config.js", 
-    "prestart": "npm run lint && npm run sync-sw && npm run generate-sw",
+    "build-sw": "node build-service-worker.js",
+    "build-sw:prod": "cross-env NODE_ENV=production node build-service-worker.js",
+    "prestart": "npm run lint && npm run build-sw",
     "start": "webpack-dev-server --config webpack-dev-config.js -d --history-api-fallback --hot --inline --progress --colors",
     "prebuild": "npm run lint",
     "build": "cross-env NODE_ENV=production webpack --config webpack-prod-config.js --progress --colors",
-    "postbuild": "npm run sync-sw:prod && npm run generate-sw:prod"
+    "postbuild": "npm run build-sw:prod"
   },
   "dependencies": {
     "react": "^15.1.0",
@@ -52,6 +50,7 @@
     "postcss-loader": "^1.1.1",
     "react-hot-loader": "^1.3.0",
     "style-loader": "^0.13.1",
+    "sw-build-tools": "^0.1.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1",

@@ -1,3 +1,4 @@
+/* eslint-disable */
 navigator.serviceWorkerConfig = {
   prefetch: [
     '/',
