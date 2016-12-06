@@ -1,10 +1,9 @@
 
-const path = require('path')
 const tools = require('sw-build-tools')
 
 tools.generateConfig({
-  outputDirectory: path.join(__dirname,
-    process.env.NODE_ENV === 'production' ? 'docs' : 'src'),
+  outputDirectory: process.env.NODE_ENV === 'production' ?
+    'docs' : 'src',
   prefetchResources: [
     'bundle.js',
     'service-worker-config.js',
@@ -16,13 +15,13 @@ tools.generateConfig({
   prefetchResourceGlobs: [
     'media/*'
   ],
-  serviceWorkerScope: process.env.NODE_ENV === 'production' ? 
+  serviceWorkerScope: process.env.NODE_ENV === 'production' ?
     '/angular.hamburg/' : '/',
   verbose: true
 })
 
 tools.syncVersion({
-  serviceWorkerDirectory: path.join(__dirname,
-    process.env.NODE_ENV === 'production' ? 'docs' : 'src'),
+  serviceWorkerDirectory: process.env.NODE_ENV === 'production' ?
+    'docs' : 'src',
   verbose: true
 })
