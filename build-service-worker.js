@@ -15,7 +15,7 @@ tools.generateConfig({
   prefetchResourceGlobs: [
     'media/*'
   ],
-  serviceWorkerScope: process.env.NODE_ENV === 'production' ?
+  scope: process.env.NODE_ENV === 'production' ?
     '/angular.hamburg/' : '/',
   verbose: true
 })
