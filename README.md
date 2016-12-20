@@ -11,7 +11,7 @@
 
 ### Todos / Ideas
 
-- Buy the `angular.hamburg` domain
+- ~~Buy the `angular.hamburg` domain~~
 - Start I18N, specifically for supporting German
 - Consider implementing a light theme
 - Make A11y check
