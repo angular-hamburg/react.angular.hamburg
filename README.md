@@ -9,17 +9,19 @@
 
 ## Development
 
-### Todos / Ideas
+### Todos
 
-- ~~Buy the `angular.hamburg` domain~~
+- Add new section for sponsors
+- Update team members
 - Start I18N, specifically for supporting German
-- Consider implementing a light theme
 - Make A11y check
 - Implement API for retrieving the next Meetup and Talks dynamically
 - Improve `Next Meetup` section with host, location, time of day, spots available, and possibly a countdown clock
-- Consider rewriting CSS in LESS or SASS
-- Rewrite in Angular, lol
-- Adopt a wombat, drink a coffee and enjoy life
+
+**Major todos for version `1.0.0`:**
+
+- Rewrite in Angular
+- Rewrite CSS in LESS or SASS
 
 ### Commands
 
@@ -30,4 +32,4 @@
 
 MIT
 
-Made with :anchor: by [@MarkTiedemann](https://twitter.com/MarkTiedemannDE). 
+Made with :anchor: in Hamburg.
