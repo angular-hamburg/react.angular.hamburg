@@ -29489,13 +29489,17 @@
 
 	var _Team2 = _interopRequireDefault(_Team);
 
-	var _Community = __webpack_require__(542);
+	var _Sponsors = __webpack_require__(542);
+
+	var _Sponsors2 = _interopRequireDefault(_Sponsors);
+
+	var _Community = __webpack_require__(545);
 
 	var _Community2 = _interopRequireDefault(_Community);
 
 	var _config = __webpack_require__(492);
 
-	var _styles = __webpack_require__(545);
+	var _styles = __webpack_require__(548);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -29516,10 +29520,12 @@
 
 	var _ref6 = _jsx(_Team2.default, {});
 
-	var _ref7 = _jsx(_Community2.default, {});
+	var _ref7 = _jsx(_Sponsors2.default, {});
+
+	var _ref8 = _jsx(_Community2.default, {});
 
 	function App() {
-	  return _jsx('div', {}, void 0, _ref, _ref2, _jsx(_Container2.default, {}, void 0, _ref3, _ref4, _ref5, _ref6, _ref7, _jsx('span', {
+	  return _jsx('div', {}, void 0, _ref, _ref2, _jsx(_Container2.default, {}, void 0, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _jsx('span', {
 	    className: _styles2.default.footer
 	  }, void 0, 'Made with \u2693 in Hamburg')));
 	}
@@ -30640,19 +30646,51 @@
 	  role: '// Organizor',
 	  description: 'Coach for Agile Software</br>Development',
 	  twitter: 'webconsultseu',
-	  avatar: 'media/john.jpeg'
+	  avatar: 'media/team-john.jpeg'
 	}, {
 	  name: 'David Müllerchen',
 	  role: '// Co-Organizor // Website',
 	  description: 'JavaScript Dev, Software Trainer</br>[webdave.de](https://www.webdave.de/)',
 	  twitter: 'webdave_de',
-	  avatar: 'media/dave.jpg'
+	  avatar: 'media/team-dave.jpg'
 	}, {
 	  name: 'Mark Tiedemann',
 	  role: '// Website',
 	  description: 'new FullStackDev({ at:</br> \'[hellohq.io](https://hellohq.io)\' })',
 	  twitter: 'MarkTiedemannDE',
-	  avatar: 'media/mark.jpg'
+	  avatar: 'media/team-mark.jpg'
+	}];
+
+	var sponsors = exports.sponsors = [{
+	  name: 'POINT. Consulting GmbH',
+	  role: 'location and drinks',
+	  link: 'http://www.point-gmbh.com/home/',
+	  logo: 'media/sponsor-point.png'
+	}, {
+	  name: 'HQLabs GmbH',
+	  role: 'location and drinks',
+	  link: 'https://hellohq.io',
+	  logo: 'media/sponsor-hqlabs.png'
+	}, {
+	  name: 'WebConsults.EU',
+	  role: 'meetup fees',
+	  link: 'http://www.webconsults.eu/',
+	  logo: 'media/sponsor-webconsultseu.png'
+	}, {
+	  name: 'angularjs.de',
+	  role: 'giveaways',
+	  link: 'https://angularjs.de/',
+	  logo: 'media/sponsor-angularjsde.png'
+	}, {
+	  name: 'webdave',
+	  role: 'domain',
+	  link: 'https://www.webdave.de/',
+	  logo: 'media/team-dave.jpg'
+	}, {
+	  name: 'You?',
+	  role: 'become a sponsor now',
+	  link: 'mailto:meetup@angular.hamburg',
+	  logo: 'media/sponsor-wanted.png'
 	}];
 
 	var platforms = exports.platforms = [{
@@ -31031,7 +31069,7 @@
 	      className: _styles2.default.description
 	    }, void 0, 'This slot could be yours!'), _jsx(_Button2.default, {
 	      className: _styles2.default.submit,
-	      href: '#',
+	      href: 'mailto:meetup@angular.hamburg',
 	      secondary: true
 	    }, void 0, 'Submit a Talk'), _jsx('p', {
 	      className: _styles2.default.note
@@ -39465,7 +39503,7 @@
 
 	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
 
-	exports.default = Community;
+	exports.default = Team;
 
 	var _react = __webpack_require__(299);
 
@@ -39487,29 +39525,35 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function Community() {
-	  var renderPlatforms = function renderPlatforms() {
-	    return _config.platforms.map(function (platform, i) {
-	      var title = platform.title,
-	          icon = platform.icon,
-	          url = platform.url;
+	function Team() {
+	  var theSponsors = function theSponsors() {
+	    return _config.sponsors.map(function (sponsor, i) {
+	      var name = sponsor.name,
+	          role = sponsor.role,
+	          link = sponsor.link,
+	          logo = sponsor.logo;
 
 	      return _jsx('li', {
-	        className: _styles2.default.platform
-	      }, i, _jsx(_Link2.default, {
-	        className: _styles2.default.link,
-	        href: url,
-	        title: title
-	      }, void 0, _jsx('span', {
-	        className: 'fa fa-lg ' + icon
-	      })));
+	        className: _styles2.default.sponsor
+	      }, i, _jsx('img', {
+	        className: _styles2.default.logo,
+	        src: logo,
+	        alt: name
+	      }), _jsx('div', {}, void 0, _jsx(_Link2.default, {
+	        target: '_blank',
+	        className: _styles2.default.name,
+	        href: link,
+	        title: link
+	      }, void 0, name), _jsx('div', {
+	        className: _styles2.default.role
+	      }, void 0, role)));
 	    });
 	  };
 
 	  return _jsx(_Section2.default, {
-	    contentClassName: _styles2.default.container,
-	    title: 'Join the Community'
-	  }, void 0, renderPlatforms());
+	    title: 'The Sponsors',
+	    contentClassName: _styles2.default.sponsors
+	  }, void 0, theSponsors());
 	}
 
 	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
@@ -39549,23 +39593,88 @@
 
 
 	// module
-	exports.push([module.id, "._2aoXe{max-width:270px;margin-left:auto;margin-right:auto}._8WBy_{-webkit-box-flex:1;-ms-flex:1;flex:1;text-align:center;margin-bottom:20px}.pgifW{font-size:28px;line-height:55px}", ""]);
+	exports.push([module.id, "._1qUOk{margin-top:15px}._3SxKz{-webkit-box-flex:33%;-ms-flex:33%;flex:33%;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;font-size:14px;font-weight:300;text-align:center;line-height:21px;margin-bottom:20px}@media (max-width:765px){._3SxKz{-webkit-box-flex:50%;-ms-flex:50%;flex:50%}}._1YR9T{width:100px;height:100px;border-radius:50%;background-color:#fff}._31q95{font-weight:400;text-decoration:none;border-bottom:1px solid #8b8a8e}._2bAb7,._31q95{color:#f8f8f8}", ""]);
 
 	// exports
 	exports.locals = {
-		"container": "_2aoXe",
-		"platform": "_8WBy_",
-		"link": "pgifW"
+		"sponsors": "_1qUOk",
+		"sponsor": "_3SxKz",
+		"logo": "_1YR9T",
+		"name": "_31q95",
+		"role": "_2bAb7"
 	};
 
 /***/ },
 /* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
+	exports.default = Community;
+
+	var _react = __webpack_require__(299);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _Section = __webpack_require__(505);
+
+	var _Section2 = _interopRequireDefault(_Section);
+
+	var _Link = __webpack_require__(537);
+
+	var _Link2 = _interopRequireDefault(_Link);
+
+	var _styles = __webpack_require__(546);
+
+	var _styles2 = _interopRequireDefault(_styles);
+
+	var _config = __webpack_require__(492);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function Community() {
+	  var renderPlatforms = function renderPlatforms() {
+	    return _config.platforms.map(function (platform, i) {
+	      var title = platform.title,
+	          icon = platform.icon,
+	          url = platform.url;
+
+	      return _jsx('li', {
+	        className: _styles2.default.platform
+	      }, i, _jsx(_Link2.default, {
+	        className: _styles2.default.link,
+	        href: url,
+	        title: title
+	      }, void 0, _jsx('span', {
+	        className: 'fa fa-lg ' + icon
+	      })));
+	    });
+	  };
+
+	  return _jsx(_Section2.default, {
+	    contentClassName: _styles2.default.container,
+	    title: 'Join the Community'
+	  }, void 0, renderPlatforms());
+	}
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 546 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(546);
+	var content = __webpack_require__(547);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(480)(content, {});
@@ -39585,7 +39694,51 @@
 	}
 
 /***/ },
-/* 546 */
+/* 547 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(479)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._2aoXe{max-width:270px;margin-left:auto;margin-right:auto}._8WBy_{-webkit-box-flex:1;-ms-flex:1;flex:1;text-align:center;margin-bottom:20px}.pgifW{font-size:28px;line-height:55px}", ""]);
+
+	// exports
+	exports.locals = {
+		"container": "_2aoXe",
+		"platform": "_8WBy_",
+		"link": "pgifW"
+	};
+
+/***/ },
+/* 548 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(549);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(480)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 549 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(479)();
