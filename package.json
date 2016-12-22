@@ -1,6 +1,6 @@
 {
   "name": "angular.hamburg",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {

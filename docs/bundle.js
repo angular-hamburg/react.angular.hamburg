@@ -30672,7 +30672,7 @@
 	}, {
 	  title: 'angular.hamburg on Github',
 	  icon: 'fa-github',
-	  url: 'https://github.com/MarkTiedemann/angular.hamburg'
+	  url: 'https://github.com/angular-hamburg/'
 	}];
 
 	var typings = exports.typings = [' developers ☕', ' hackers 💀', ' beginners 🔥', ' unicorns 🦄', ' everyone ❤️']
