@@ -28,32 +28,25 @@ The angular.hamburg meetup is a meetup around the
 
 export const team = [
   {
-    name: 'Lars Fluffypaws',
-    job: 'Codeaholic',
-    company: 'Treehouse',
-    twitter: 'TreeHugger42',
-    avatar: 'media/team1.jpg'
+    name: 'John Behrens',
+    role: '// Organizor',
+    description: 'Coach for Agile Software</br>Development',
+    twitter: 'webconsultseu',
+    avatar: 'media/john.jpeg'
   },
   {
-    name: 'Lilly Cuddlefur',
-    job: 'DevOps Bear',
-    company: 'TechTribe',
-    twitter: 'Code4Coffee',
-    avatar: 'media/team2.jpg'
-  },
-  {
-    name: 'Ted Blacknose',
-    job: 'Cloud Admirer',
-    company: 'Blue^2 Sky',
-    twitter: 'RealTeddyBear',
-    avatar: 'media/team3.jpg'
+    name: 'David Müllerchen',
+    role: '// Co-Organizor // Website',
+    description: 'JavaScript Dev, Software Trainer</br>[webdave.de](https://www.webdave.de/)',
+    twitter: 'webdave_de',
+    avatar: 'media/dave.jpg'
   },
   {
     name: 'Mark Tiedemann',
-    job: 'Code Ninja',
-    company: 'HQLabs, maybe',
+    role: '// Website',
+    description: 'new FullStackDev({ at:</br> \'[hellohq.io](https://hellohq.io)\' })',
     twitter: 'MarkTiedemannDE',
-    avatar: 'media/team4.jpg'
+    avatar: 'media/mark.jpg'
   }
 ]
 

@@ -36,3 +36,9 @@
   border-bottom: 1px solid #8B8A8E;
   text-decoration: none;
 }
+
+.markdown a {
+  color: var(--white);
+  border-bottom: 1px solid #8B8A8E;
+  text-decoration: none;
+}

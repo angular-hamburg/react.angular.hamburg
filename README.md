@@ -12,7 +12,6 @@
 ### Todos
 
 - Add new section for sponsors
-- Update team members
 - Start I18N, specifically for supporting German
 - Make A11y check
 - Implement API for retrieving the next Meetup and Talks dynamically

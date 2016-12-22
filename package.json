@@ -1,6 +1,6 @@
 {
   "name": "angular.hamburg",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "The angular.hamburg website for Hamburg's Angular Meetup, jokingly made with React.",
   "main": "index.js",
   "scripts": {
@@ -16,8 +16,9 @@
   "dependencies": {
     "react": "^15.1.0",
     "react-dom": "^15.1.0",
-    "throw-if-missing": "^1.1.0",
-    "stringz": "^0.1.1"
+    "react-markdown": "^2.4.2",
+    "stringz": "^0.1.1",
+    "throw-if-missing": "^1.1.0"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.6",
@@ -44,6 +45,7 @@
     "glob-all": "^3.1.0",
     "imagemin-mozjpeg": "^6.0.0",
     "imagemin-webpack-plugin": "^1.4.4",
+    "json-loader": "^0.5.4",
     "postcss-custom-properties": "^5.0.1",
     "postcss-import": "^9.0.0",
     "postcss-import-url": "^2.2.0",
