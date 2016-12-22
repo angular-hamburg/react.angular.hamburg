@@ -32,21 +32,60 @@ export const team = [
     role: '// Organizor',
     description: 'Coach for Agile Software</br>Development',
     twitter: 'webconsultseu',
-    avatar: 'media/john.jpeg'
+    avatar: 'media/team-john.jpeg'
   },
   {
     name: 'David Müllerchen',
     role: '// Co-Organizor // Website',
     description: 'JavaScript Dev, Software Trainer</br>[webdave.de](https://www.webdave.de/)',
     twitter: 'webdave_de',
-    avatar: 'media/dave.jpg'
+    avatar: 'media/team-dave.jpg'
   },
   {
     name: 'Mark Tiedemann',
     role: '// Website',
     description: 'new FullStackDev({ at:</br> \'[hellohq.io](https://hellohq.io)\' })',
     twitter: 'MarkTiedemannDE',
-    avatar: 'media/mark.jpg'
+    avatar: 'media/team-mark.jpg'
+  }
+]
+
+export const sponsors = [
+  {
+    name: 'POINT. Consulting GmbH',
+    role: 'location and drinks',
+    link: 'http://www.point-gmbh.com/home/',
+    logo: 'media/sponsor-point.png'
+  },
+  {
+    name: 'HQLabs GmbH',
+    role: 'location and drinks',
+    link: 'https://hellohq.io',
+    logo: 'media/sponsor-hqlabs.png'
+  },
+  {
+    name: 'WebConsults.EU',
+    role: 'meetup fees',
+    link: 'http://www.webconsults.eu/',
+    logo: 'media/sponsor-webconsultseu.png'
+  },
+  {
+    name: 'angularjs.de',
+    role: 'giveaways',
+    link: 'https://angularjs.de/',
+    logo: 'media/sponsor-angularjsde.png'
+  },
+  {
+    name: 'webdave',
+    role: 'domain',
+    link: 'https://www.webdave.de/',
+    logo: 'media/team-dave.jpg'
+  },
+  {
+    name: 'You?',
+    role: 'become a sponsor now',
+    link: 'mailto:meetup@angular.hamburg',
+    logo: 'media/sponsor-wanted.png'
   }
 ]
 

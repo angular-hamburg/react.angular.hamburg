@@ -1,0 +1,40 @@
+
+@import '../variables.css';
+
+.sponsors {
+  margin-top: 15px;
+}
+
+.sponsor {
+  flex: 33%;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 300;
+  text-align: center;
+  line-height: 21px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 765px) {
+  .sponsor {
+    flex: 50%;
+  }
+}
+
+.logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+.name {
+  font-weight: 400;
+  color: var(--white);
+  text-decoration: none;
+  border-bottom: 1px solid #8B8A8E;
+}
+
+.role {
+  color: var(--white);
+}

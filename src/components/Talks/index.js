@@ -22,7 +22,7 @@ export default function Talks() {
     <li className={`${styles.talk} ${styles.freeSlot}`} key={key}>
       <h3 className={styles.title}>Free Slot</h3>
       <p className={styles.description}>This slot could be yours!</p>
-      <Button className={styles.submit} href="#" secondary>
+      <Button className={styles.submit} href="mailto:meetup@angular.hamburg" secondary>
         Submit a Talk
       </Button>
       <p className={styles.note}>
