@@ -6,12 +6,7 @@ export const nextMeetup = {
 
 export const nextTalks = [
   {
-    reserved: true,
-    title: 'Epic Framework Battles of The Frontend: Angular vs React',
-    speaker: 'Mark Tiedemann',
-    banner: 'media/talk1.png',
-    description: "To start off, we'll build a simple demo app in both " +
-      "Angular and React. Afterwards, we'll discuss the differences in depth."
+    reserved: false
   },
   {
     reserved: false
