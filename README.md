@@ -1,7 +1,7 @@
 
-# angular.hamburg
+# react.angular.hamburg
 
-**The [angular.hamburg](https://angular.hamburg/) website for Hamburg's [Angular](https://angular.io/) [Meetup](https://www.meetup.com/Hamburg-AngularJS-Meetup/), jokingly made with [React](https://github.com/facebook/react).**
+**The [react.angular.hamburg](https://angular.hamburg/) website for Hamburg's [Angular](https://angular.io/) [Meetup](https://www.meetup.com/Hamburg-AngularJS-Meetup/), jokingly made with [React](https://github.com/facebook/react).**
 
 [![](https://raw.githubusercontent.com/angular-hamburg/angular.hamburg/master/docs/media/preview.png)](https://angular.hamburg/)
 
