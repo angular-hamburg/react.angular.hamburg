@@ -3,7 +3,7 @@
 
 // based on https://github.com/GoogleChrome/samples/blob/gh-pages/service-worker/basic/service-worker.js
 
-const GH_PAGES_ENV = location.href.startsWith('https://angular-hamburg.github.io/angular.hamburg/')
+const GH_PAGES_ENV = location.href.startsWith('https://angular-hamburg.github.io/react.angular.hamburg/')
 
 const DEV_ENV = location.href.startsWith('http://localhost:3000/')
 
@@ -16,7 +16,7 @@ let prefetchResources = []
 try {
   // If we are using Github Pages instead of 'https://angular.hamburg',
   // the SW config is located under a different relative path 
-  const relativePath = GH_PAGES_ENV ? '/angular.hamburg' : ''
+  const relativePath = GH_PAGES_ENV ? '/react.angular.hamburg' : ''
   importScripts(relativePath + '/service-worker-config.js')
 
   // If we are using Github Pages, the resources to be prefetched have
@@ -28,7 +28,7 @@ try {
   logError('Failed to import:', e)
 }
 
-const VERSION = '0.6.2'
+const VERSION = '0.6.3'
 const PREFETCH_CACHE = `ng-hh-prefetch-cache-v${VERSION}`
 const RUNTIME_CACHE = `ng-hh-runtime-cache-v${VERSION}`
 

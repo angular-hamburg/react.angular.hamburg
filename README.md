@@ -3,7 +3,7 @@
 
 **The [react.angular.hamburg](https://angular.hamburg/) website for Hamburg's [Angular](https://angular.io/) [Meetup](https://www.meetup.com/Hamburg-AngularJS-Meetup/), jokingly made with [React](https://github.com/facebook/react).**
 
-[![](https://raw.githubusercontent.com/angular-hamburg/angular.hamburg/master/docs/media/preview.png)](https://angular.hamburg/)
+[![](https://raw.githubusercontent.com/angular-hamburg/react.angular.hamburg/master/docs/media/preview.png)](https://angular.hamburg/)
 
 **Heavily inspired by and partially forked from the beautiful website of [HannoverJS](https://github.com/HannoverJS/hannoverjs.de).**
 

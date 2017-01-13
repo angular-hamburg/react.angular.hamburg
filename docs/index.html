@@ -29,9 +29,9 @@
       window.addEventListener('load', () => {
         // If we are using Github Pages instead of `https://angular.hamburg`,
         // the SW is found under a different path and has a different scope
-        const GH_PAGES_ENV = location.href.startsWith('https://angular-hamburg.github.io/angular.hamburg/')
+        const GH_PAGES_ENV = location.href.startsWith('https://angular-hamburg.github.io/react.angular.hamburg/')
         const DEV_ENV = location.href.startsWith('http://localhost:3000/')
-        const relativePath = GH_PAGES_ENV ? '/angular.hamburg' : ''
+        const relativePath = GH_PAGES_ENV ? '/react.angular.hamburg' : ''
         navigator.serviceWorker.register(relativePath + '/service-worker.js', { 
           scope: relativePath + '/' 
         })

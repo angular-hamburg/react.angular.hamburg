@@ -63,6 +63,9 @@ module.exports = {
     }),
     new CopyPlugin([
       {
+        from: 'CNAME'
+      },
+      {
         from: 'service-worker.js'
       },
       {
