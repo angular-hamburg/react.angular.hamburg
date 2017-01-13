@@ -28,7 +28,7 @@ try {
   logError('Failed to import:', e)
 }
 
-const VERSION = '0.6.0'
+const VERSION = '0.6.2'
 const PREFETCH_CACHE = `ng-hh-prefetch-cache-v${VERSION}`
 const RUNTIME_CACHE = `ng-hh-runtime-cache-v${VERSION}`
 
