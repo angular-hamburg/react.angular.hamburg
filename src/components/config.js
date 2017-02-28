@@ -1,12 +1,26 @@
 
 export const nextMeetup = {
-  date: 'February 08, 2017',
-  link: 'https://www.meetup.com/Hamburg-AngularJS-Meetup/events/234414329/'
+  date: 'March 08, 2017',
+  link: 'https://www.meetup.com/de-DE/Hamburg-AngularJS-Meetup/events/234414332/'
 }
 
 export const nextTalks = [
   {
-    reserved: false
+    reserved: true,
+    title: 'Making your Angular apps fast',
+    speaker: 'Pascal Precht',
+    speakerLink: 'https://twitter.com/PascalPrecht',
+    description: `
+    In this talk we'll take a look at an unoptimized Angular application
+    and analyse and discuss what can be done to make it faster. We will
+    then apply different performance techniques to reach about 60 fps and
+    explore their pros and cons.
+
+    Pascal is a Software Engineer and Trainer at thoughtram, a Google
+    Developer Expert for the Angular team and the creator of the popular
+    angular-translate module. He has also written more than 60 articles
+    on the thoughtram blog as a technical author.
+    `
   },
   {
     reserved: false
@@ -14,7 +28,7 @@ export const nextTalks = [
 ]
 
 export const aboutUs = `
-The angular.hamburg meetup is a meetup around the 
+The angular.hamburg meetup is a meetup around the
  Angular framework which takes place in Hamburg.
  We're open to anyone interested in the topic.
  Whether you're a beginner dying to poke questions at

@@ -1,19 +1,23 @@
 
 import React from 'react'
+import ReactMarkdown from 'react-markdown'
 import Section from '../Section'
 import Button from '../Button'
+import Link from '../Link'
 import styles from './styles.css'
 import { nextTalks } from '../config'
 
 export default function Talks() {
   const renderReservedSlot = (talk, key) => {
-    const { title, speaker, banner, description } = talk
+    const { title, speaker, speakerLink, banner, description } = talk
     return (
       <li className={styles.talk} key={key}>
         <h3 className={styles.title}>{title}</h3>
-        <p>by {speaker}</p>
-        <img className={styles.banner} src={banner} alt={title} />
-        <p className={styles.description}>{description}</p>
+        <Link className={styles.link} target="_blank" href={speakerLink} title={`${speaker} on Twitter`}>
+          by {speaker}
+        </Link>
+        {banner && <img className={styles.banner} src={banner} alt={title} />}
+        <ReactMarkdown className={styles.description} source={description} />
       </li>
     )
   }

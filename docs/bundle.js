@@ -7551,90 +7551,34 @@
 	        return doneResult();
 	      }
 
+	      context.method = method;
+	      context.arg = arg;
+
 	      while (true) {
 	        var delegate = context.delegate;
 	        if (delegate) {
-	          if (method === "return" ||
-	              (method === "throw" && delegate.iterator[method] === undefined)) {
-	            // A return or throw (when the delegate iterator has no throw
-	            // method) always terminates the yield* loop.
-	            context.delegate = null;
-
-	            // If the delegate iterator has a return method, give it a
-	            // chance to clean up.
-	            var returnMethod = delegate.iterator["return"];
-	            if (returnMethod) {
-	              var record = tryCatch(returnMethod, delegate.iterator, arg);
-	              if (record.type === "throw") {
-	                // If the return method threw an exception, let that
-	                // exception prevail over the original return or throw.
-	                method = "throw";
-	                arg = record.arg;
-	                continue;
-	              }
-	            }
-
-	            if (method === "return") {
-	              // Continue with the outer return, now that the delegate
-	              // iterator has been terminated.
-	              continue;
-	            }
+	          var delegateResult = maybeInvokeDelegate(delegate, context);
+	          if (delegateResult) {
+	            if (delegateResult === ContinueSentinel) continue;
+	            return delegateResult;
 	          }
-
-	          var record = tryCatch(
-	            delegate.iterator[method],
-	            delegate.iterator,
-	            arg
-	          );
-
-	          if (record.type === "throw") {
-	            context.delegate = null;
-
-	            // Like returning generator.throw(uncaught), but without the
-	            // overhead of an extra function call.
-	            method = "throw";
-	            arg = record.arg;
-	            continue;
-	          }
-
-	          // Delegate generator ran and handled its own exceptions so
-	          // regardless of what the method was, we continue as if it is
-	          // "next" with an undefined arg.
-	          method = "next";
-	          arg = undefined;
-
-	          var info = record.arg;
-	          if (info.done) {
-	            context[delegate.resultName] = info.value;
-	            context.next = delegate.nextLoc;
-	          } else {
-	            state = GenStateSuspendedYield;
-	            return info;
-	          }
-
-	          context.delegate = null;
 	        }
 
-	        if (method === "next") {
+	        if (context.method === "next") {
 	          // Setting context._sent for legacy support of Babel's
 	          // function.sent implementation.
-	          context.sent = context._sent = arg;
+	          context.sent = context._sent = context.arg;
 
-	        } else if (method === "throw") {
+	        } else if (context.method === "throw") {
 	          if (state === GenStateSuspendedStart) {
 	            state = GenStateCompleted;
-	            throw arg;
+	            throw context.arg;
 	          }
 
-	          if (context.dispatchException(arg)) {
-	            // If the dispatched exception was caught by a catch block,
-	            // then let that catch block handle the exception normally.
-	            method = "next";
-	            arg = undefined;
-	          }
+	          context.dispatchException(context.arg);
 
-	        } else if (method === "return") {
-	          context.abrupt("return", arg);
+	        } else if (context.method === "return") {
+	          context.abrupt("return", context.arg);
 	        }
 
 	        state = GenStateExecuting;
@@ -7647,30 +7591,106 @@
 	            ? GenStateCompleted
 	            : GenStateSuspendedYield;
 
-	          var info = {
+	          if (record.arg === ContinueSentinel) {
+	            continue;
+	          }
+
+	          return {
 	            value: record.arg,
 	            done: context.done
 	          };
 
-	          if (record.arg === ContinueSentinel) {
-	            if (context.delegate && method === "next") {
-	              // Deliberately forget the last sent value so that we don't
-	              // accidentally pass it on to the delegate.
-	              arg = undefined;
-	            }
-	          } else {
-	            return info;
-	          }
-
 	        } else if (record.type === "throw") {
 	          state = GenStateCompleted;
 	          // Dispatch the exception by looping back around to the
-	          // context.dispatchException(arg) call above.
-	          method = "throw";
-	          arg = record.arg;
+	          // context.dispatchException(context.arg) call above.
+	          context.method = "throw";
+	          context.arg = record.arg;
 	        }
 	      }
 	    };
+	  }
+
+	  // Call delegate.iterator[context.method](context.arg) and handle the
+	  // result, either by returning a { value, done } result from the
+	  // delegate iterator, or by modifying context.method and context.arg,
+	  // setting context.delegate to null, and returning the ContinueSentinel.
+	  function maybeInvokeDelegate(delegate, context) {
+	    var method = delegate.iterator[context.method];
+	    if (method === undefined) {
+	      // A .throw or .return when the delegate iterator has no .throw
+	      // method always terminates the yield* loop.
+	      context.delegate = null;
+
+	      if (context.method === "throw") {
+	        if (delegate.iterator.return) {
+	          // If the delegate iterator has a return method, give it a
+	          // chance to clean up.
+	          context.method = "return";
+	          context.arg = undefined;
+	          maybeInvokeDelegate(delegate, context);
+
+	          if (context.method === "throw") {
+	            // If maybeInvokeDelegate(context) changed context.method from
+	            // "return" to "throw", let that override the TypeError below.
+	            return ContinueSentinel;
+	          }
+	        }
+
+	        context.method = "throw";
+	        context.arg = new TypeError(
+	          "The iterator does not provide a 'throw' method");
+	      }
+
+	      return ContinueSentinel;
+	    }
+
+	    var record = tryCatch(method, delegate.iterator, context.arg);
+
+	    if (record.type === "throw") {
+	      context.method = "throw";
+	      context.arg = record.arg;
+	      context.delegate = null;
+	      return ContinueSentinel;
+	    }
+
+	    var info = record.arg;
+
+	    if (! info) {
+	      context.method = "throw";
+	      context.arg = new TypeError("iterator result is not an object");
+	      context.delegate = null;
+	      return ContinueSentinel;
+	    }
+
+	    if (info.done) {
+	      // Assign the result of the finished delegate to the temporary
+	      // variable specified by delegate.resultName (see delegateYield).
+	      context[delegate.resultName] = info.value;
+
+	      // Resume execution at the desired location (see delegateYield).
+	      context.next = delegate.nextLoc;
+
+	      // If context.method was "throw" but the delegate handled the
+	      // exception, let the outer generator proceed normally. If
+	      // context.method was "next", forget context.arg since it has been
+	      // "consumed" by the delegate iterator. If context.method was
+	      // "return", allow the original .return call to continue in the
+	      // outer generator.
+	      if (context.method !== "return") {
+	        context.method = "next";
+	        context.arg = undefined;
+	      }
+
+	    } else {
+	      // Re-yield the result returned by the delegate method.
+	      return info;
+	    }
+
+	    // The delegate iterator is finished, so forget it and continue with
+	    // the outer generator.
+	    context.delegate = null;
+	    return ContinueSentinel;
 	  }
 
 	  // Define Generator.prototype.{next,throw,return} in terms of the
@@ -7793,6 +7813,9 @@
 	      this.done = false;
 	      this.delegate = null;
 
+	      this.method = "next";
+	      this.arg = undefined;
+
 	      this.tryEntries.forEach(resetTryEntry);
 
 	      if (!skipTempReset) {
@@ -7829,7 +7852,15 @@
 	        record.type = "throw";
 	        record.arg = exception;
 	        context.next = loc;
-	        return !!caught;
+
+	        if (caught) {
+	          // If the dispatched exception was caught by a catch block,
+	          // then let that catch block handle the exception normally.
+	          context.method = "next";
+	          context.arg = undefined;
+	        }
+
+	        return !! caught;
 	      }
 
 	      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
@@ -7897,12 +7928,12 @@
 	      record.arg = arg;
 
 	      if (finallyEntry) {
+	        this.method = "next";
 	        this.next = finallyEntry.finallyLoc;
-	      } else {
-	        this.complete(record);
+	        return ContinueSentinel;
 	      }
 
-	      return ContinueSentinel;
+	      return this.complete(record);
 	    },
 
 	    complete: function(record, afterLoc) {
@@ -7914,11 +7945,14 @@
 	          record.type === "continue") {
 	        this.next = record.arg;
 	      } else if (record.type === "return") {
-	        this.rval = record.arg;
+	        this.rval = this.arg = record.arg;
+	        this.method = "return";
 	        this.next = "end";
 	      } else if (record.type === "normal" && afterLoc) {
 	        this.next = afterLoc;
 	      }
+
+	      return ContinueSentinel;
 	    },
 
 	    finish: function(finallyLoc) {
@@ -7956,6 +7990,12 @@
 	        resultName: resultName,
 	        nextLoc: nextLoc
 	      };
+
+	      if (this.method === "next") {
+	        // Deliberately forget the last sent value so that we don't
+	        // accidentally pass it on to the delegate.
+	        this.arg = undefined;
+	      }
 
 	      return ContinueSentinel;
 	    }
@@ -8192,7 +8232,7 @@
 /* 298 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -8212,7 +8252,7 @@
 
 	(0, _reactDom.render)(_jsx(_App2.default, {}), document.getElementById('root'));
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 299 */
@@ -8321,8 +8361,15 @@
 /* 301 */
 /***/ function(module, exports) {
 
+	/*
+	object-assign
+	(c) Sindre Sorhus
+	@license MIT
+	*/
+
 	'use strict';
 	/* eslint-disable no-unused-vars */
+	var getOwnPropertySymbols = Object.getOwnPropertySymbols;
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
 
@@ -8343,7 +8390,7 @@
 			// Detect buggy property enumeration order in older V8 versions.
 
 			// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-			var test1 = new String('abc');  // eslint-disable-line
+			var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
 			test1[5] = 'de';
 			if (Object.getOwnPropertyNames(test1)[0] === '5') {
 				return false;
@@ -8372,7 +8419,7 @@
 			}
 
 			return true;
-		} catch (e) {
+		} catch (err) {
 			// We don't expect any of the above to throw, but better to be safe.
 			return false;
 		}
@@ -8392,8 +8439,8 @@
 				}
 			}
 
-			if (Object.getOwnPropertySymbols) {
-				symbols = Object.getOwnPropertySymbols(from);
+			if (getOwnPropertySymbols) {
+				symbols = getOwnPropertySymbols(from);
 				for (var i = 0; i < symbols.length; i++) {
 					if (propIsEnumerable.call(from, symbols[i])) {
 						to[symbols[i]] = from[symbols[i]];
@@ -29459,7 +29506,7 @@
 /* 475 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -29495,11 +29542,11 @@
 
 	var _Talks2 = _interopRequireDefault(_Talks);
 
-	var _Section = __webpack_require__(505);
+	var _Section = __webpack_require__(531);
 
 	var _Section2 = _interopRequireDefault(_Section);
 
-	var _Team = __webpack_require__(510);
+	var _Team = __webpack_require__(539);
 
 	var _Team2 = _interopRequireDefault(_Team);
 
@@ -29544,13 +29591,13 @@
 	  }, void 0, 'Made with \u2693 in Hamburg')));
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 476 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -29626,7 +29673,7 @@
 
 	exports.default = Typer;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 477 */
@@ -29644,8 +29691,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -29747,7 +29794,7 @@
 			};
 		},
 		isOldIE = memoize(function() {
-			return /msie [6-9]\b/.test(window.navigator.userAgent.toLowerCase());
+			return /msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase());
 		}),
 		getHeadElement = memoize(function () {
 			return document.head || document.getElementsByTagName("head")[0];
@@ -29986,7 +30033,7 @@
 /* 481 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30032,7 +30079,7 @@
 	  })));
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 482 */
@@ -30050,8 +30097,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30085,7 +30132,7 @@
 /* 484 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30147,13 +30194,13 @@
 	  }, void 0, 'RSVP & Join us on Meetup'))));
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 485 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30185,7 +30232,7 @@
 	  }));
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 486 */
@@ -30203,8 +30250,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30234,7 +30281,7 @@
 /* 488 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30312,13 +30359,13 @@
 
 	exports.default = Typer;
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 489 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30532,7 +30579,7 @@
 	  }, _marked[1], this, [[4, 39, 43, 51], [11, 22, 26, 34], [27,, 29, 33], [44,, 46, 50]]);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "iterator.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "iterator.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 490 */
@@ -30631,7 +30678,7 @@
 /* 492 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30639,17 +30686,21 @@
 	  value: true
 	});
 	var nextMeetup = exports.nextMeetup = {
-	  date: 'February 08, 2017',
-	  link: 'https://www.meetup.com/Hamburg-AngularJS-Meetup/events/234414329/'
+	  date: 'March 08, 2017',
+	  link: 'https://www.meetup.com/de-DE/Hamburg-AngularJS-Meetup/events/234414332/'
 	};
 
 	var nextTalks = exports.nextTalks = [{
-	  reserved: false
+	  reserved: true,
+	  title: 'Making your Angular apps fast',
+	  speaker: 'Pascal Precht',
+	  speakerLink: 'https://twitter.com/PascalPrecht',
+	  description: '\n    In this talk we\'ll take a look at an unoptimized Angular application\n    and analyse and discuss what can be done to make it faster. We will\n    then apply different performance techniques to reach about 60 fps and\n    explore their pros and cons.\n\n    Pascal is a Software Engineer and Trainer at thoughtram, a Google\n    Developer Expert for the Angular team and the creator of the popular\n    angular-translate module. He has also written more than 60 articles\n    on the thoughtram blog as a technical author.\n    '
 	}, {
 	  reserved: false
 	}];
 
-	var aboutUs = exports.aboutUs = '\nThe angular.hamburg meetup is a meetup around the \n Angular framework which takes place in Hamburg.\n We\'re open to anyone interested in the topic.\n Whether you\'re a beginner dying to poke questions at\n someone with experience or a veteran wanting to discuss\n the finer details, everyone is welcome.';
+	var aboutUs = exports.aboutUs = '\nThe angular.hamburg meetup is a meetup around the\n Angular framework which takes place in Hamburg.\n We\'re open to anyone interested in the topic.\n Whether you\'re a beginner dying to poke questions at\n someone with experience or a veteran wanting to discuss\n the finer details, everyone is welcome.';
 
 	var team = exports.team = [{
 	  name: 'John Behrens',
@@ -30724,7 +30775,7 @@
 	  return text.replace(/ /g, '\xA0');
 	});
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "config.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "config.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 493 */
@@ -30742,8 +30793,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30775,7 +30826,7 @@
 /* 495 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30821,7 +30872,7 @@
 	  }, void 0, children);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 496 */
@@ -30850,8 +30901,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30894,8 +30945,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -30929,7 +30980,7 @@
 /* 501 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -30968,7 +31019,7 @@
 	  }, void 0, children);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 502 */
@@ -30986,8 +31037,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -31016,7 +31067,7 @@
 /* 504 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -31032,7 +31083,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Section = __webpack_require__(505);
+	var _reactMarkdown = __webpack_require__(505);
+
+	var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
+
+	var _Section = __webpack_require__(531);
 
 	var _Section2 = _interopRequireDefault(_Section);
 
@@ -31040,7 +31095,11 @@
 
 	var _Button2 = _interopRequireDefault(_Button);
 
-	var _styles = __webpack_require__(508);
+	var _Link = __webpack_require__(534);
+
+	var _Link2 = _interopRequireDefault(_Link);
+
+	var _styles = __webpack_require__(537);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -31054,6 +31113,7 @@
 	  var renderReservedSlot = function renderReservedSlot(talk, key) {
 	    var title = talk.title,
 	        speaker = talk.speaker,
+	        speakerLink = talk.speakerLink,
 	        banner = talk.banner,
 	        description = talk.description;
 
@@ -31061,13 +31121,19 @@
 	      className: _styles2.default.talk
 	    }, key, _jsx('h3', {
 	      className: _styles2.default.title
-	    }, void 0, title), _jsx('p', {}, void 0, 'by ', speaker), _jsx('img', {
+	    }, void 0, title), _jsx(_Link2.default, {
+	      className: _styles2.default.link,
+	      target: '_blank',
+	      href: speakerLink,
+	      title: speaker + ' on Twitter'
+	    }, void 0, 'by ', speaker), banner && _jsx('img', {
 	      className: _styles2.default.banner,
 	      src: banner,
 	      alt: title
-	    }), _jsx('p', {
-	      className: _styles2.default.description
-	    }, void 0, description));
+	    }), _jsx(_reactMarkdown2.default, {
+	      className: _styles2.default.description,
+	      source: description
+	    }));
 	  };
 
 	  var renderFreeSlot = function renderFreeSlot(key) {
@@ -31101,245 +31167,17 @@
 	  }, void 0, renderTalks());
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 505 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
-
-	var _templateObject = _taggedTemplateLiteral(['title'], ['title']);
-
-	exports.default = Section;
-
-	var _react = __webpack_require__(299);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _throwIfMissing = __webpack_require__(496);
-
-	var _throwIfMissing2 = _interopRequireDefault(_throwIfMissing);
-
-	var _styles = __webpack_require__(506);
-
-	var _styles2 = _interopRequireDefault(_styles);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
-
-	function Section(_ref) {
-	  var _ref$title = _ref.title,
-	      title = _ref$title === undefined ? (0, _throwIfMissing2.default)(_templateObject) : _ref$title,
-	      text = _ref.text,
-	      children = _ref.children,
-	      contentClassName = _ref.contentClassName;
-
-	  return _jsx('div', {
-	    className: _styles2.default.root
-	  }, void 0, _jsx('h2', {
-	    className: _styles2.default.title
-	  }, void 0, _jsx('span', {
-	    className: _styles2.default.highlight
-	  }, void 0, title)), text && _jsx('p', {
-	    className: _styles2.default.text
-	  }, void 0, text), children && _jsx('ul', {
-	    className: _styles2.default.content + ' ' + contentClassName
-	  }, void 0, children));
-	}
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ },
-/* 506 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(507);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(480)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 507 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(479)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._3HuxD{margin-top:64px;padding:0 20px}.VjpHX{font-size:24px;font-weight:400}._12u4v,.VjpHX{text-align:center}._12u4v{max-width:750px;margin-left:auto;margin-right:auto;padding:0 20px;font-size:18px;font-weight:300;line-height:28px}._28tSZ{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;list-style-type:none;margin:0;padding:0}.V2s1Y{padding-bottom:5px;border-bottom:1px solid #dd0031}", ""]);
-
-	// exports
-	exports.locals = {
-		"root": "_3HuxD",
-		"title": "VjpHX",
-		"text": "_12u4v",
-		"content": "_28tSZ",
-		"highlight": "V2s1Y"
-	};
-
-/***/ },
-/* 508 */
-/***/ function(module, exports, __webpack_require__) {
-
-	// style-loader: Adds some css to the DOM by adding a <style> tag
-
-	// load the styles
-	var content = __webpack_require__(509);
-	if(typeof content === 'string') content = [[module.id, content, '']];
-	// add the styles to the DOM
-	var update = __webpack_require__(480)(content, {});
-	if(content.locals) module.exports = content.locals;
-	// Hot Module Replacement
-	if(false) {
-		// When the styles change, update the <style> tags
-		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
-				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
-				update(newContent);
-			});
-		}
-		// When the module is disposed, remove the <style> tags
-		module.hot.dispose(function() { update(); });
-	}
-
-/***/ },
-/* 509 */
-/***/ function(module, exports, __webpack_require__) {
-
-	exports = module.exports = __webpack_require__(479)();
-	// imports
-
-
-	// module
-	exports.push([module.id, "._2EEfg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}@media (max-width:767px){._2EEfg{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}}.qojJa{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-item-align:center;align-self:center;max-height:220px;max-width:300px;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}._3d096:hover{color:#333}._2M7yI{-webkit-box-flex:1;-ms-flex:1;flex:1;padding:20px;background:#dd0031;color:#f8f8f8;text-align:center;font-weight:300}._2M7yI:last-child{border-top:0;border-left:1px solid #312e36}@media (max-width:767px){._2M7yI:last-child{border-top:1px solid #312e36;border-left:0}}.-kswY{margin-top:10px;margin-bottom:0;font-size:20px;font-weight:400}.RwffW{max-height:100px;max-width:100%;border:1.5px solid #312e36;margin:15px}.q49Ic{margin-top:10px;margin-bottom:10px;font-size:16px;line-height:26px}.q49Ic h5,.q49Ic h6{margin:0;font-size:14px;line-height:21px}.q49Ic h5{font-weight:400}.q49Ic h6{font-weight:300}.q49Ic h6 a{color:#f8f8f8;-webkit-transition:.2s;transition:.2s}.q49Ic h6 a:focus,.q49Ic h6 a:hover{opacity:.6}._29AM9{font-size:14px}", ""]);
-
-	// exports
-	exports.locals = {
-		"content": "_2EEfg",
-		"freeSlot": "qojJa",
-		"submit": "_3d096",
-		"talk": "_2M7yI",
-		"title": "-kswY",
-		"banner": "RwffW",
-		"description": "q49Ic",
-		"note": "_29AM9"
-	};
-
-/***/ },
-/* 510 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-
-	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
-
-	exports.default = Team;
-
-	var _react = __webpack_require__(299);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _reactMarkdown = __webpack_require__(511);
-
-	var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
-
-	var _Section = __webpack_require__(505);
-
-	var _Section2 = _interopRequireDefault(_Section);
-
-	var _Link = __webpack_require__(537);
-
-	var _Link2 = _interopRequireDefault(_Link);
-
-	var _styles = __webpack_require__(540);
-
-	var _styles2 = _interopRequireDefault(_styles);
-
-	var _config = __webpack_require__(492);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function Team() {
-	  var members = function members() {
-	    return _config.team.map(function (member, i) {
-	      var name = member.name,
-	          role = member.role,
-	          description = member.description,
-	          twitter = member.twitter,
-	          avatar = member.avatar;
-
-	      return _jsx('li', {
-	        className: _styles2.default.member
-	      }, i, _jsx('img', {
-	        className: _styles2.default.avatar,
-	        src: avatar,
-	        alt: name
-	      }), _jsx('div', {
-	        className: _styles2.default.name
-	      }, void 0, name), _jsx('div', {}, void 0, role.toUpperCase()), _jsx(_reactMarkdown2.default, {
-	        className: _styles2.default.markdown,
-	        source: description
-	      }), _jsx(_Link2.default, {
-	        className: _styles2.default.link,
-	        target: '_blank',
-	        href: 'http://twitter.com/' + twitter,
-	        title: twitter + ' on Twitter'
-	      }, void 0, '@' + twitter));
-	    });
-	  };
-
-	  return _jsx(_Section2.default, {
-	    title: 'The Team',
-	    contentClassName: _styles2.default.team
-	  }, void 0, members());
-	}
-
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
-
-/***/ },
-/* 511 */
-/***/ function(module, exports, __webpack_require__) {
-
 	'use strict';
 
 	var React = __webpack_require__(299);
-	var Parser = __webpack_require__(512).Parser;
-	var ReactRenderer = __webpack_require__(532);
+	var Parser = __webpack_require__(506).Parser;
+	var ReactRenderer = __webpack_require__(526);
 
 	var parser = new Parser();
 	var propTypes = React.PropTypes;
@@ -31409,7 +31247,7 @@
 
 
 /***/ },
-/* 512 */
+/* 506 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -31426,14 +31264,14 @@
 	// console.log(renderer.render(parser.parse('Hello *world*')));
 
 	module.exports.version = '0.24.0'
-	module.exports.Node = __webpack_require__(513);
-	module.exports.Parser = __webpack_require__(514);
-	module.exports.HtmlRenderer = __webpack_require__(530);
-	module.exports.XmlRenderer = __webpack_require__(531);
+	module.exports.Node = __webpack_require__(507);
+	module.exports.Parser = __webpack_require__(508);
+	module.exports.HtmlRenderer = __webpack_require__(524);
+	module.exports.XmlRenderer = __webpack_require__(525);
 
 
 /***/ },
-/* 513 */
+/* 507 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -31710,15 +31548,15 @@
 
 
 /***/ },
-/* 514 */
+/* 508 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var Node = __webpack_require__(513);
-	var unescapeString = __webpack_require__(515).unescapeString;
-	var OPENTAG = __webpack_require__(515).OPENTAG;
-	var CLOSETAG = __webpack_require__(515).CLOSETAG;
+	var Node = __webpack_require__(507);
+	var unescapeString = __webpack_require__(509).unescapeString;
+	var OPENTAG = __webpack_require__(509).OPENTAG;
+	var CLOSETAG = __webpack_require__(509).CLOSETAG;
 
 	var CODE_INDENT = 4;
 
@@ -31729,7 +31567,7 @@
 	var C_SPACE = 32;
 	var C_OPEN_BRACKET = 91;
 
-	var InlineParser = __webpack_require__(526);
+	var InlineParser = __webpack_require__(520);
 
 	var reHtmlBlockOpen = [
 	   /./, // dummy for 0
@@ -32586,17 +32424,17 @@
 
 
 /***/ },
-/* 515 */
+/* 509 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var encode = __webpack_require__(516);
-	var decode = __webpack_require__(517);
+	var encode = __webpack_require__(510);
+	var decode = __webpack_require__(511);
 
 	var C_BACKSLASH = 92;
 
-	var decodeHTML = __webpack_require__(518).decodeHTML;
+	var decodeHTML = __webpack_require__(512).decodeHTML;
 
 	var ENTITY = "&(?:#x[a-f0-9]{1,8}|#[0-9]{1,8}|[a-z][a-z0-9]{1,31});";
 
@@ -32695,7 +32533,7 @@
 
 
 /***/ },
-/* 516 */
+/* 510 */
 /***/ function(module, exports) {
 
 	
@@ -32799,7 +32637,7 @@
 
 
 /***/ },
-/* 517 */
+/* 511 */
 /***/ function(module, exports) {
 
 	
@@ -32927,11 +32765,11 @@
 
 
 /***/ },
-/* 518 */
+/* 512 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var encode = __webpack_require__(519),
-	    decode = __webpack_require__(522);
+	var encode = __webpack_require__(513),
+	    decode = __webpack_require__(516);
 
 	exports.decode = function(data, level){
 		return (!level || level <= 0 ? decode.XML : decode.HTML)(data);
@@ -32966,15 +32804,15 @@
 
 
 /***/ },
-/* 519 */
+/* 513 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var inverseXML = getInverseObj(__webpack_require__(520)),
+	var inverseXML = getInverseObj(__webpack_require__(514)),
 	    xmlReplacer = getInverseReplacer(inverseXML);
 
 	exports.XML = getInverse(inverseXML, xmlReplacer);
 
-	var inverseHTML = getInverseObj(__webpack_require__(521)),
+	var inverseHTML = getInverseObj(__webpack_require__(515)),
 	    htmlReplacer = getInverseReplacer(inverseHTML);
 
 	exports.HTML = getInverse(inverseHTML, htmlReplacer);
@@ -33045,7 +32883,7 @@
 
 
 /***/ },
-/* 520 */
+/* 514 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -33057,7 +32895,7 @@
 	};
 
 /***/ },
-/* 521 */
+/* 515 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -35189,13 +35027,13 @@
 	};
 
 /***/ },
-/* 522 */
+/* 516 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var entityMap = __webpack_require__(521),
-	    legacyMap = __webpack_require__(523),
-	    xmlMap    = __webpack_require__(520),
-	    decodeCodePoint = __webpack_require__(524);
+	var entityMap = __webpack_require__(515),
+	    legacyMap = __webpack_require__(517),
+	    xmlMap    = __webpack_require__(514),
+	    decodeCodePoint = __webpack_require__(518);
 
 	var decodeXMLStrict  = getStrictDecoder(xmlMap),
 	    decodeHTMLStrict = getStrictDecoder(entityMap);
@@ -35266,7 +35104,7 @@
 	};
 
 /***/ },
-/* 523 */
+/* 517 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -35379,10 +35217,10 @@
 	};
 
 /***/ },
-/* 524 */
+/* 518 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var decodeMap = __webpack_require__(525);
+	var decodeMap = __webpack_require__(519);
 
 	module.exports = decodeCodePoint;
 
@@ -35411,7 +35249,7 @@
 
 
 /***/ },
-/* 525 */
+/* 519 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -35446,20 +35284,20 @@
 	};
 
 /***/ },
-/* 526 */
+/* 520 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var Node = __webpack_require__(513);
-	var common = __webpack_require__(515);
-	var normalizeReference = __webpack_require__(527);
+	var Node = __webpack_require__(507);
+	var common = __webpack_require__(509);
+	var normalizeReference = __webpack_require__(521);
 
 	var normalizeURI = common.normalizeURI;
 	var unescapeString = common.unescapeString;
-	var fromCodePoint = __webpack_require__(528);
-	var decodeHTML = __webpack_require__(518).decodeHTML;
-	__webpack_require__(529); // Polyfill for String.prototype.repeat
+	var fromCodePoint = __webpack_require__(522);
+	var decodeHTML = __webpack_require__(512).decodeHTML;
+	__webpack_require__(523); // Polyfill for String.prototype.repeat
 
 	// Constants for character codes:
 
@@ -36383,7 +36221,7 @@
 
 
 /***/ },
-/* 527 */
+/* 521 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -36431,7 +36269,7 @@
 
 
 /***/ },
-/* 528 */
+/* 522 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -36496,7 +36334,7 @@
 
 
 /***/ },
-/* 529 */
+/* 523 */
 /***/ function(module, exports) {
 
 	/*! http://mths.be/repeat v0.2.0 by @mathias */
@@ -36552,12 +36390,12 @@
 
 
 /***/ },
-/* 530 */
+/* 524 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var escapeXml = __webpack_require__(515).escapeXml;
+	var escapeXml = __webpack_require__(509).escapeXml;
 
 	// Helper function to produce an HTML tag.
 	var tag = function(name, attrs, selfclosing) {
@@ -36844,12 +36682,12 @@
 
 
 /***/ },
-/* 531 */
+/* 525 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var escapeXml = __webpack_require__(515).escapeXml;
+	var escapeXml = __webpack_require__(509).escapeXml;
 
 	// Helper function to produce an XML tag.
 	var tag = function(name, attrs, selfclosing) {
@@ -37027,16 +36865,16 @@
 
 
 /***/ },
-/* 532 */
+/* 526 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	var React = __webpack_require__(299);
-	var assign = __webpack_require__(533);
-	var isPlainObject = __webpack_require__(534);
-	var xssFilters = __webpack_require__(535);
-	var pascalCase = __webpack_require__(536);
+	var assign = __webpack_require__(527);
+	var isPlainObject = __webpack_require__(528);
+	var xssFilters = __webpack_require__(529);
+	var pascalCase = __webpack_require__(530);
 
 	var typeAliases = {
 	    blockquote: 'block_quote',
@@ -37437,7 +37275,7 @@
 
 
 /***/ },
-/* 533 */
+/* 527 */
 /***/ function(module, exports) {
 
 	/**
@@ -38080,7 +37918,7 @@
 
 
 /***/ },
-/* 534 */
+/* 528 */
 /***/ function(module, exports) {
 
 	/**
@@ -38225,7 +38063,7 @@
 
 
 /***/ },
-/* 535 */
+/* 529 */
 /***/ function(module, exports) {
 
 	/*
@@ -39330,7 +39168,7 @@
 
 
 /***/ },
-/* 536 */
+/* 530 */
 /***/ function(module, exports) {
 
 	/*!
@@ -39357,10 +39195,112 @@
 
 
 /***/ },
-/* 537 */
+/* 531 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
+	var _templateObject = _taggedTemplateLiteral(['title'], ['title']);
+
+	exports.default = Section;
+
+	var _react = __webpack_require__(299);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _throwIfMissing = __webpack_require__(496);
+
+	var _throwIfMissing2 = _interopRequireDefault(_throwIfMissing);
+
+	var _styles = __webpack_require__(532);
+
+	var _styles2 = _interopRequireDefault(_styles);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _taggedTemplateLiteral(strings, raw) { return Object.freeze(Object.defineProperties(strings, { raw: { value: Object.freeze(raw) } })); }
+
+	function Section(_ref) {
+	  var _ref$title = _ref.title,
+	      title = _ref$title === undefined ? (0, _throwIfMissing2.default)(_templateObject) : _ref$title,
+	      text = _ref.text,
+	      children = _ref.children,
+	      contentClassName = _ref.contentClassName;
+
+	  return _jsx('div', {
+	    className: _styles2.default.root
+	  }, void 0, _jsx('h2', {
+	    className: _styles2.default.title
+	  }, void 0, _jsx('span', {
+	    className: _styles2.default.highlight
+	  }, void 0, title)), text && _jsx('p', {
+	    className: _styles2.default.text
+	  }, void 0, text), children && _jsx('ul', {
+	    className: _styles2.default.content + ' ' + contentClassName
+	  }, void 0, children));
+	}
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+
+/***/ },
+/* 532 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(533);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(480)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 533 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(479)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._3HuxD{margin-top:64px;padding:0 20px}.VjpHX{font-size:24px;font-weight:400}._12u4v,.VjpHX{text-align:center}._12u4v{max-width:750px;margin-left:auto;margin-right:auto;padding:0 20px;font-size:18px;font-weight:300;line-height:28px}._28tSZ{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;list-style-type:none;margin:0;padding:0}.V2s1Y{padding-bottom:5px;border-bottom:1px solid #dd0031}", ""]);
+
+	// exports
+	exports.locals = {
+		"root": "_3HuxD",
+		"title": "VjpHX",
+		"text": "_12u4v",
+		"content": "_28tSZ",
+		"highlight": "V2s1Y"
+	};
+
+/***/ },
+/* 534 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -39384,7 +39324,7 @@
 
 	var _throwIfMissing2 = _interopRequireDefault(_throwIfMissing);
 
-	var _styles = __webpack_require__(538);
+	var _styles = __webpack_require__(535);
 
 	var _styles2 = _interopRequireDefault(_styles);
 
@@ -39408,16 +39348,16 @@
 	  }, void 0, children);
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
-/* 538 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 
 	// load the styles
-	var content = __webpack_require__(539);
+	var content = __webpack_require__(536);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(480)(content, {});
@@ -39426,8 +39366,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -39437,7 +39377,7 @@
 	}
 
 /***/ },
-/* 539 */
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(479)();
@@ -39451,6 +39391,133 @@
 	exports.locals = {
 		"link": "_23dAa"
 	};
+
+/***/ },
+/* 537 */
+/***/ function(module, exports, __webpack_require__) {
+
+	// style-loader: Adds some css to the DOM by adding a <style> tag
+
+	// load the styles
+	var content = __webpack_require__(538);
+	if(typeof content === 'string') content = [[module.id, content, '']];
+	// add the styles to the DOM
+	var update = __webpack_require__(480)(content, {});
+	if(content.locals) module.exports = content.locals;
+	// Hot Module Replacement
+	if(false) {
+		// When the styles change, update the <style> tags
+		if(!content.locals) {
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
+				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+				update(newContent);
+			});
+		}
+		// When the module is disposed, remove the <style> tags
+		module.hot.dispose(function() { update(); });
+	}
+
+/***/ },
+/* 538 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(479)();
+	// imports
+
+
+	// module
+	exports.push([module.id, "._2EEfg{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}@media (max-width:767px){._2EEfg{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column}}.qojJa{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-item-align:center;align-self:center;max-height:220px;max-width:300px;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}._3d096:hover{color:#333}._2M7yI{-webkit-box-flex:1;-ms-flex:1;flex:1;padding:20px;background:#dd0031;color:#f8f8f8;text-align:center;font-weight:300}._2M7yI:last-child{border-top:0;border-left:1px solid #312e36}@media (max-width:767px){._2M7yI:last-child{border-top:1px solid #312e36;border-left:0}}.-kswY{margin-top:10px;margin-bottom:0;font-size:20px;font-weight:400}.RwffW{max-height:100px;max-width:100%;border:1.5px solid #312e36;margin:15px}._1l55S,.q49Ic{font-size:16px}.q49Ic{margin-top:10px;margin-bottom:10px;line-height:26px}.q49Ic code{font-family:Roboto,sans-serif}.q49Ic h5,.q49Ic h6{margin:0;font-size:14px;line-height:21px}.q49Ic h5{font-weight:400}.q49Ic h6{font-weight:300}.q49Ic h6 a{color:#f8f8f8;-webkit-transition:.2s;transition:.2s}.q49Ic h6 a:focus,.q49Ic h6 a:hover{opacity:.6}._29AM9{font-size:14px}", ""]);
+
+	// exports
+	exports.locals = {
+		"content": "_2EEfg",
+		"freeSlot": "qojJa",
+		"submit": "_3d096",
+		"talk": "_2M7yI",
+		"title": "-kswY",
+		"banner": "RwffW",
+		"link": "_1l55S",
+		"description": "q49Ic",
+		"note": "_29AM9"
+	};
+
+/***/ },
+/* 539 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _jsx = function () { var REACT_ELEMENT_TYPE = typeof Symbol === "function" && Symbol.for && Symbol.for("react.element") || 0xeac7; return function createRawReactElement(type, props, key, children) { var defaultProps = type && type.defaultProps; var childrenLength = arguments.length - 3; if (!props && childrenLength !== 0) { props = {}; } if (props && defaultProps) { for (var propName in defaultProps) { if (props[propName] === void 0) { props[propName] = defaultProps[propName]; } } } else if (!props) { props = defaultProps || {}; } if (childrenLength === 1) { props.children = children; } else if (childrenLength > 1) { var childArray = Array(childrenLength); for (var i = 0; i < childrenLength; i++) { childArray[i] = arguments[i + 3]; } props.children = childArray; } return { $$typeof: REACT_ELEMENT_TYPE, type: type, key: key === undefined ? null : '' + key, ref: null, props: props, _owner: null }; }; }();
+
+	exports.default = Team;
+
+	var _react = __webpack_require__(299);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactMarkdown = __webpack_require__(505);
+
+	var _reactMarkdown2 = _interopRequireDefault(_reactMarkdown);
+
+	var _Section = __webpack_require__(531);
+
+	var _Section2 = _interopRequireDefault(_Section);
+
+	var _Link = __webpack_require__(534);
+
+	var _Link2 = _interopRequireDefault(_Link);
+
+	var _styles = __webpack_require__(540);
+
+	var _styles2 = _interopRequireDefault(_styles);
+
+	var _config = __webpack_require__(492);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function Team() {
+	  var members = function members() {
+	    return _config.team.map(function (member, i) {
+	      var name = member.name,
+	          role = member.role,
+	          description = member.description,
+	          twitter = member.twitter,
+	          avatar = member.avatar;
+
+	      return _jsx('li', {
+	        className: _styles2.default.member
+	      }, i, _jsx('img', {
+	        className: _styles2.default.avatar,
+	        src: avatar,
+	        alt: name
+	      }), _jsx('div', {
+	        className: _styles2.default.name
+	      }, void 0, name), _jsx('div', {}, void 0, role.toUpperCase()), _jsx(_reactMarkdown2.default, {
+	        className: _styles2.default.markdown,
+	        source: description
+	      }), _jsx(_Link2.default, {
+	        className: _styles2.default.link,
+	        target: '_blank',
+	        href: 'http://twitter.com/' + twitter,
+	        title: twitter + ' on Twitter'
+	      }, void 0, '@' + twitter));
+	    });
+	  };
+
+	  return _jsx(_Section2.default, {
+	    title: 'The Team',
+	    contentClassName: _styles2.default.team
+	  }, void 0, members());
+	}
+
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 540 */
@@ -39468,8 +39535,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -39503,7 +39570,7 @@
 /* 542 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -39519,11 +39586,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Section = __webpack_require__(505);
+	var _Section = __webpack_require__(531);
 
 	var _Section2 = _interopRequireDefault(_Section);
 
-	var _Link = __webpack_require__(537);
+	var _Link = __webpack_require__(534);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
@@ -39566,7 +39633,7 @@
 	  }, void 0, theSponsors());
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 543 */
@@ -39584,8 +39651,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -39618,7 +39685,7 @@
 /* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-api\\modules\\index.js"), RootInstanceProvider = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\RootInstanceProvider.js"), ReactMount = require("react-dom/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } try { (function () {
 
 	'use strict';
 
@@ -39634,11 +39701,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Section = __webpack_require__(505);
+	var _Section = __webpack_require__(531);
 
 	var _Section2 = _interopRequireDefault(_Section);
 
-	var _Link = __webpack_require__(537);
+	var _Link = __webpack_require__(534);
 
 	var _Link2 = _interopRequireDefault(_Link);
 
@@ -39675,7 +39742,7 @@
 	  }, void 0, renderPlatforms());
 	}
 
-	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\Users\\mark.tiedemann\\Desktop\\angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
+	/* REACT HOT LOADER */ }).call(this); } finally { if (false) { (function () { var foundReactClasses = module.hot.data && module.hot.data.foundReactClasses || false; if (module.exports && module.makeHot) { var makeExportsHot = require("C:\\dev\\react.angular.hamburg\\node_modules\\react-hot-loader\\makeExportsHot.js"); if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot apply hot update to " + "index.js" + ": " + err.message); } }); } } module.hot.dispose(function (data) { data.makeHot = module.makeHot; data.foundReactClasses = foundReactClasses; }); })(); } }
 
 /***/ },
 /* 546 */
@@ -39693,8 +39760,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
@@ -39737,8 +39804,8 @@
 	if(false) {
 		// When the styles change, update the <style> tags
 		if(!content.locals) {
-			module.hot.accept("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css", function() {
-				var newContent = require("!!./../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!./../../../node_modules/postcss-loader/index.js!./styles.css");
+			module.hot.accept("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css", function() {
+				var newContent = require("!!../../../node_modules/css-loader/index.js?modules&minimize&importLoaders=1&localIdentName=[hash:base64:5]!../../../node_modules/postcss-loader/index.js!./styles.css");
 				if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
 				update(newContent);
 			});
