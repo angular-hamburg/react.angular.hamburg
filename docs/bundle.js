@@ -30686,16 +30686,12 @@
 	  value: true
 	});
 	var nextMeetup = exports.nextMeetup = {
-	  date: 'March 08, 2017',
-	  link: 'https://www.meetup.com/de-DE/Hamburg-AngularJS-Meetup/events/234414332/'
+	  date: 'April 12, 2017',
+	  link: 'https://www.meetup.com/Hamburg-AngularJS-Meetup/events/234414335/'
 	};
 
 	var nextTalks = exports.nextTalks = [{
-	  reserved: true,
-	  title: 'Making your Angular apps fast',
-	  speaker: 'Pascal Precht',
-	  speakerLink: 'https://twitter.com/PascalPrecht',
-	  description: '\n    In this talk we\'ll take a look at an unoptimized Angular application\n    and analyse and discuss what can be done to make it faster. We will\n    then apply different performance techniques to reach about 60 fps and\n    explore their pros and cons.\n\n    Pascal is a Software Engineer and Trainer at thoughtram, a Google\n    Developer Expert for the Angular team and the creator of the popular\n    angular-translate module. He has also written more than 60 articles\n    on the thoughtram blog as a technical author.\n    '
+	  reserved: false
 	}, {
 	  reserved: false
 	}];
