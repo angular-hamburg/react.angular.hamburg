@@ -1,7 +1,7 @@
 
 export const nextMeetup = {
-  date: 'April 12, 2017',
-  link: 'https://www.meetup.com/Hamburg-AngularJS-Meetup/events/234414335/'
+  date: 'May 10, 2017',
+  link: 'https://www.meetup.com/Hamburg-AngularJS-Meetup/events/234414340/'
 }
 
 export const nextTalks = [
