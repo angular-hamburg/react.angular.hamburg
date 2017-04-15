@@ -26,6 +26,15 @@
     <script src="bundle.js"></script>
     <script>
     if ('serviceWorker' in navigator) {
+
+      // remove old service worker registrations
+      navigator.serviceWorker.getRegistrations()
+      .then(registrations => {
+        for (let registration of registrations)
+          registration.unregister()
+      })
+
+      /*
       window.addEventListener('load', () => {
         // If we are using Github Pages instead of `https://angular.hamburg`,
         // the SW is found under a different path and has a different scope
@@ -37,6 +46,7 @@
         })
         .catch(e => DEV_ENV ? console.error('Failed to register:', e) : 0)
       })
+      */
     }
     </script>
   </body>
