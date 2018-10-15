@@ -1,0 +1,21 @@
+# CSS
+- Fix action design
+- Improve mobile layout
+- Clean-up and simplify CSS
+- Inline CSS
+
+# MISC
+- Update About Us text
+- Add JS and CSS for text-typing ("for ...")
+- Add Font Awesome attribution
+- Check cross-browser compatibility (edge, safari)
+
+# NO_PRIO
+- Optimize images (perhaps inline small ones?)
+- Improve a11y (especially anchor and image tags)
+- Check site with best pratice tools (lighthouse, webhint)
+- Consider i18n, translating to German
+
+# HOSTING
+- Update repo settings so site root is no longer in /docs
+- Use Github Pages for HTTPS, use Cloudflare for DNS only
