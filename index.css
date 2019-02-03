@@ -1,8 +1,9 @@
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Segoe UI', Roboto, Arial;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   background: #082035;
   color: white;
-  text-rendering: optimizeLegibility;
   margin: 0;
   height: 100%;
 }
